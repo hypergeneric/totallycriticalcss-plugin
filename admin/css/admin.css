@@ -1,1 +1,13 @@
 
+/****
+**** Admin bar icon styling
+****/
+
+li[class*="totallycriticalcss"] .wp-menu-image img {
+	height: 25px;
+	padding: 5px 0;
+}
+
+/****
+**** General styling
+****/
