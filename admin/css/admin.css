@@ -11,3 +11,10 @@ li[class*="totallycriticalcss"] .wp-menu-image img {
 /****
 **** General styling
 ****/
+#admin-view-form .field {
+	margin-bottom: 1.5rem;
+}
+
+#admin-view-form .field input {
+	width: 550px;
+}

@@ -138,6 +138,12 @@ function totallycriticalcss( $id ) {
 	}
 }
 
+function inspect_styles() {
+	global $wp_styles;
+	print_r( $wp_styles->queue );
+}
+add_action( 'wp_print_styles', 'inspect_styles' );
+
 /**
 * On Post Save Function
 */
@@ -146,21 +152,26 @@ function totallycriticalcss_post_save( $post_id ) {
 }
 add_action( 'save_post', 'totallycriticalcss_post_save' );
 
-
 // ENQUEUE STYLES & SCRIPTS
 function scripts() {
 
 	$totallyCiriticalCSS = get_post_meta( get_the_ID(), 'totallycriticalcss', true );
 	$style_name = get_post_field( 'post_name', get_the_ID() );
+	// $dequeued_styles = get_option( 'style',  );
+	//
+	// get_stylesheet()
+	//
+	// wp_dequeue_style( $handle );
+	// wp_deregister_style( $handle );
 
-	if( $totallyCiriticalCSS ):
-		echo '<!-- TotallyCriticalCSS --><style>'.$totallyCiriticalCSS.'</style><!-- /TotallyCriticalCSS -->';
-		add_action( 'get_footer', function(){
+	if( $totallyCiriticalCSS ) {
+		echo '<!-- TotallyCriticalCSS --><style>' . $totallyCiriticalCSS . '</style><!-- /TotallyCriticalCSS -->';
+		add_action( 'get_footer', function() {
 			wp_enqueue_style( $style_name . '-style', totallycriticalcss_stylesheet_path(), false, null, 'all' );
-		});
-	else:
+		} );
+	} else {
 		wp_enqueue_style( $style_name . '-style', totallycriticalcss_stylesheet_path(), false, null, 'all' );
-	endif;
+	}
 
 }
 add_action( 'wp_enqueue_scripts', 'scripts' );

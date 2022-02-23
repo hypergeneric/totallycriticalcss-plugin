@@ -1,5 +1,9 @@
 <?php
 // Admin View Options Page
+
+inspect_styles();
+
+print_r( get_stylesheet());
 ?>
 <div id="admin-view">
 	<form id="admin-view-form">
