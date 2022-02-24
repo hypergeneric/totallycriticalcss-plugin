@@ -1,9 +1,10 @@
 <?php
 // Admin View Options Page
 
-inspect_styles();
-
-print_r( get_stylesheet());
+if( get_template_directory_uri() != get_stylesheet_directory_uri() ) {
+	print_r(get_template());
+	print_r(get_stylesheet());
+}
 ?>
 <div id="admin-view">
 	<form id="admin-view-form">
@@ -19,6 +20,10 @@ print_r( get_stylesheet());
 		<div class="field custom-stylesheet">
 			<label for="customStylesheet">Custom Stylesheet Location:</label><br>
 			<input id="customStylesheet" name="customStylesheet" type="text" placeholder="Insert Custom Stylesheet Location" value="<?php echo get_option( 'totallycriticalcss_custom_stylesheet_location' ); ?>">
+		</div>
+		<div class="field custom-dequeue">
+			<label for="customDequeue">Custom Stylesheet Dequeue (comma-separated):</label><br>
+			<input id="customDequeue" name="customDequeue" type="text" placeholder="Insert Stylesheet Names i.e. parent,child" value="<?php echo get_option( 'totallycriticalcss_custom_dequeue' ); ?>">
 		</div>
 		<input id="submitForm" name="submitForm" type="submit" value="Submit">
 	</form>

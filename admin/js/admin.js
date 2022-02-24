@@ -9,6 +9,8 @@
 			var apiKey = $( this ).find( '#apiKey' ).val();
 			var customStylesheet = $( this ).find( '#customStylesheet' ).val();
 			var customTheme = $( this ).find( '#customTheme' ).val();
+			var customDequeue = $( this ).find( '#customDequeue' ).val();
+
 			$.ajax( {
 				method: 'POST',
 				url: ajaxURL,
@@ -16,10 +18,10 @@
 					action: 'save_admin_page',
 					api_key: apiKey,
 					custom_stylesheet: customStylesheet,
-					custom_theme: customTheme
+					custom_theme: customTheme,
+					custom_dequeue: customDequeue
 				},
 				success: function( response ) {
-					console.log( response)
 					location.reload();
 				}
 			} );

@@ -7,6 +7,18 @@
 * License URI: https://www.gnu.org/licenses/gpl-2.0.html
 */
 
+if ( !function_exists( 'write_log' ) ) {
+	function write_log( $log ) {
+		if ( true === WP_DEBUG ) {
+			if ( is_array( $log ) || is_object( $log ) ) {
+				error_log( print_r( $log, true ) );
+			} else {
+				error_log( $log );
+			}
+		}
+	}
+}
+
 if ( is_admin() ) {
 	// we are in admin mode
 	add_action( 'admin_init', 'totallycriticalcss_styles' );
@@ -87,7 +99,7 @@ function totallycriticalcss_plugin_admin_page() {
 * Store Path
 */
 function totallycriticalcss_custom_theme_path() {
-	$theme_path = get_option( 'totallycriticalcss_custom_theme_location' ) ? get_option( 'totallycriticalcss_custom_theme_location' ) : get_stylesheet_directory_uri();
+	$theme_path = get_option( 'totallycriticalcss_custom_theme_location' ) ? get_option( 'totallycriticalcss_custom_theme_location' ) : get_template_directory_uri();
 
 	return $theme_path;
 }
@@ -96,7 +108,7 @@ function totallycriticalcss_custom_theme_path() {
 * Store Stylesheet
 */
 function totallycriticalcss_stylesheet_path() {
-	$stylesheet_path = get_option( 'totallycriticalcss_custom_stylesheet_location' ) ? get_option( 'totallycriticalcss_custom_stylesheet_location' ) : get_stylesheet_uri();
+	$stylesheet_path = get_option( 'totallycriticalcss_custom_stylesheet_location' ) ? get_option( 'totallycriticalcss_custom_stylesheet_location' ) : get_template_directory_uri() . '/style.css';
 
 	return $stylesheet_path;
 }
@@ -116,6 +128,9 @@ function save_admin_page() {
 
 	$custom_stylesheet = $_POST[ 'custom_stylesheet' ];
 	update_option( 'totallycriticalcss_custom_stylesheet_location', $custom_stylesheet );
+
+	$custom_dequeue = $_POST[ 'custom_dequeue' ];
+	update_option( 'totallycriticalcss_custom_dequeue', $custom_dequeue );
 }
 
 /**
@@ -128,6 +143,8 @@ function totallycriticalcss( $id ) {
 	$css = totallycriticalcss_stylesheet_path();
 	$key = get_option( 'totallycriticalcss_api_key' ) ? get_option( 'totallycriticalcss_api_key' ) : 'beadf54f56063cc0cce7ded292b8e099';
 
+	write_log($cri . 'u=' . $url . '&c=' . $css . '&p=' . $pth . '&k=' . $key);
+
 	$in = file_get_contents( $cri . 'u=' . $url . '&c=' . $css . '&p=' . $pth . '&k=' . $key, false );
 
 	if( $in ) {
@@ -138,12 +155,6 @@ function totallycriticalcss( $id ) {
 	}
 }
 
-function inspect_styles() {
-	global $wp_styles;
-	print_r( $wp_styles->queue );
-}
-add_action( 'wp_print_styles', 'inspect_styles' );
-
 /**
 * On Post Save Function
 */
@@ -152,23 +163,51 @@ function totallycriticalcss_post_save( $post_id ) {
 }
 add_action( 'save_post', 'totallycriticalcss_post_save' );
 
+function custom_style_dequeueing() {
+	$user_dequeued_stylesheet = get_option( 'totallycriticalcss_custom_dequeue' );
+
+	if( $user_dequeued_stylesheet ) {
+		$explosion = explode( ',', $user_dequeued_stylesheet );
+		foreach( $explosion as $style ) {
+			wp_dequeue_style( $style );
+			wp_deregister_style( $style );
+		}
+	}
+
+}
+
+add_action( 'wp_print_styles', 'custom_style_dequeueing' );
+
+function main_style_dequeueing() {
+
+	$stylesheet_name = get_stylesheet();
+	$stylesheet_uri = get_stylesheet_uri();
+	wp_dequeue_style( $stylesheet_name );
+
+	add_action( 'get_footer', function() {
+
+		$stylesheet_name = get_stylesheet();
+		$stylesheet_uri = get_stylesheet_uri();
+
+		wp_enqueue_style( $stylesheet_name, $stylesheet_uri, false, null, 'all' );
+	} );
+
+}
+
+add_action( 'wp_enqueue_scripts', 'main_style_dequeueing' );
+
 // ENQUEUE STYLES & SCRIPTS
 function scripts() {
 
 	$totallyCiriticalCSS = get_post_meta( get_the_ID(), 'totallycriticalcss', true );
-	$style_name = get_post_field( 'post_name', get_the_ID() );
-	// $dequeued_styles = get_option( 'style',  );
-	//
-	// get_stylesheet()
-	//
-	// wp_dequeue_style( $handle );
-	// wp_deregister_style( $handle );
 
 	if( $totallyCiriticalCSS ) {
+
 		echo '<!-- TotallyCriticalCSS --><style>' . $totallyCiriticalCSS . '</style><!-- /TotallyCriticalCSS -->';
 		add_action( 'get_footer', function() {
+			$style_name = get_post_field( 'post_name', get_the_ID() );
 			wp_enqueue_style( $style_name . '-style', totallycriticalcss_stylesheet_path(), false, null, 'all' );
-		} );
+		});
 	} else {
 		wp_enqueue_style( $style_name . '-style', totallycriticalcss_stylesheet_path(), false, null, 'all' );
 	}
