@@ -24,6 +24,17 @@ if ( is_admin() ) {
 	add_action( 'admin_init', 'totallycriticalcss_styles' );
 	add_action( 'admin_init', 'totallycriticalcss_scripts' );
 	add_action( 'admin_menu', 'totallycriticalcss_plugin_admin_page' );
+	add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'totallycriticalcss_add_settings_link');
+}
+
+/**
+* Add settings link on plugin page
+*/
+function totallycriticalcss_add_settings_link( $links ) {
+	$links[] = '<a href="' .
+		admin_url( 'options-general.php?page=my-plugin' ) .
+		'">' . __('Settings') . '</a>';
+	return $links;
 }
 
 /**
@@ -65,15 +76,18 @@ add_action( 'add_meta_boxes', 'totallycriticalcss_mb' );
 * Register admin page and menu.
 */
 function totallycriticalcss_plugin_admin_page() {
-	add_menu_page(
+	add_submenu_page(
+		'options-general.php',
 		'Totally Critical CSS',
 		'Totally Critical CSS',
-		'manage_options',
-		plugin_dir_path(__FILE__) . 'admin/view.php',
-		null,
-		plugin_dir_url(__FILE__) . 'admin/images/critical.png',
+		'administrator',
+		plugin_dir_path(__FILE__),
+		'totallycriticalcss_plugin_admin_page_settings',
 		100
 	);
+}
+function totallycriticalcss_plugin_admin_page_settings() {
+	require_once 'admin/view.php';
 }
 
 /**

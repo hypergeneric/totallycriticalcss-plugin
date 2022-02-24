@@ -1,16 +1,29 @@
 <?php
 // Admin View Options Page
 
-if( get_template_directory_uri() != get_stylesheet_directory_uri() ) {
-	print_r(get_template());
-	print_r(get_stylesheet());
+$sheets = [];
+$response = wp_remote_get( get_home_url() );
+
+if ( is_array( $response ) && ! is_wp_error( $response ) ) {
+	$headers = $response['headers']; // array of http header lines
+	$body    = $response['body']; // use the content
+	
+	$doc = new DOMDocument();
+	$doc->loadHTML($body, LIBXML_NOWARNING | LIBXML_NOERROR);
+	$domcss = $doc->getElementsByTagName('link');
+	foreach ( $domcss as $links ) {
+		if( strtolower($links->getAttribute('rel')) == "stylesheet" ) {
+			$sheets[] = $links;
+		}
+	}
 }
+
 ?>
 <div id="admin-view">
 	<form id="admin-view-form">
 		<h1>Totally Critical CSS</h1>
 		<div class="field api-key">
-			<label for="apiKey">First name:</label><br>
+			<label for="apiKey">API Key:</label><br>
 			<input id="apiKey" name="apiKey" type="text" placeholder="Insert API Key" value="<?php echo get_option( 'totallycriticalcss_api_key' ); ?>">
 		</div>
 		<div class="field custom-theme">
@@ -24,6 +37,20 @@ if( get_template_directory_uri() != get_stylesheet_directory_uri() ) {
 		<div class="field custom-dequeue">
 			<label for="customDequeue">Custom Stylesheet Dequeue (comma-separated):</label><br>
 			<input id="customDequeue" name="customDequeue" type="text" placeholder="Insert Stylesheet Names i.e. parent,child" value="<?php echo get_option( 'totallycriticalcss_custom_dequeue' ); ?>">
+		</div>
+		<div class="group">
+			<?php
+			foreach ( $sheets as $sheet ) {
+				$sheetid = $sheet->getAttribute('id');
+				$sheetid_bits = explode( '-', $sheetid );
+				array_pop( $sheetid_bits );
+				$sheetid_clean = implode( '-', $sheetid_bits );
+				?>
+				<input type="checkbox" name="sheets" value="<?php echo $sheetid_clean; ?>">
+				<label for="vehicle1"><?php echo '( ' . $sheetid_clean . ' ): ' . $sheet->getAttribute('href'); ?></label><br>
+				<?php
+			}
+			?>
 		</div>
 		<input id="submitForm" name="submitForm" type="submit" value="Submit">
 	</form>
