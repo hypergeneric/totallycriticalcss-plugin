@@ -5,14 +5,14 @@ $sheets = [];
 $response = wp_remote_get( get_home_url() );
 
 if ( is_array( $response ) && ! is_wp_error( $response ) ) {
-	$headers = $response['headers']; // array of http header lines
-	$body    = $response['body']; // use the content
-	
+	$headers = $response[ 'headers' ]; // array of http header lines
+	$body    = $response[ 'body' ]; // use the content
+
 	$doc = new DOMDocument();
-	$doc->loadHTML($body, LIBXML_NOWARNING | LIBXML_NOERROR);
-	$domcss = $doc->getElementsByTagName('link');
+	$doc->loadHTML( $body, LIBXML_NOWARNING | LIBXML_NOERROR );
+	$domcss = $doc->getElementsByTagName( 'link' );
 	foreach ( $domcss as $links ) {
-		if( strtolower($links->getAttribute('rel')) == "stylesheet" ) {
+		if( strtolower( $links->getAttribute( 'rel' ) ) == "stylesheet" ) {
 			$sheets[] = $links;
 		}
 	}
@@ -38,7 +38,9 @@ if ( is_array( $response ) && ! is_wp_error( $response ) ) {
 			<label for="customDequeue">Custom Stylesheet Dequeue (comma-separated):</label><br>
 			<input id="customDequeue" name="customDequeue" type="text" placeholder="Insert Stylesheet Names i.e. parent,child" value="<?php echo get_option( 'totallycriticalcss_custom_dequeue' ); ?>">
 		</div>
+		<!-- Make these toggleable / dequeue all selected and add to footer / add toggle all -->
 		<div class="group">
+			<div class="toggle-all">Toggle All</div>
 			<?php
 			foreach ( $sheets as $sheet ) {
 				$sheetid = $sheet->getAttribute('id');
