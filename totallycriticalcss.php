@@ -31,9 +31,7 @@ if ( is_admin() ) {
 * Add settings link on plugin page
 */
 function totallycriticalcss_add_settings_link( $links ) {
-	$links[] = '<a href="' .
-		admin_url( 'options-general.php?page=my-plugin' ) .
-		'">' . __('Settings') . '</a>';
+	$links[] = '<a href="' . admin_url( 'options-general.php?page=totallycriticalcss' ) . '">' . __( 'Settings' ) . '</a>';
 	return $links;
 }
 
