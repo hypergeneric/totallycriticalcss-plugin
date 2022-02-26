@@ -45,7 +45,6 @@ if ( ! class_exists( 'TotallyCriticalCSS' ) ) {
 			******************************/
 
 			if ( is_admin() ) {
-				// we are in admin mode
 				$admin = new Setup();
 				$admin->totallycriticalcss_admin_setup();
 			}
@@ -53,9 +52,10 @@ if ( ! class_exists( 'TotallyCriticalCSS' ) ) {
 			/******************************
 			********* SETUP CORE *********
 			******************************/
-
-			$critical = new Critical();
-			$critical->totallycriticalcss_save_post_action();
+			if ( is_admin() ) {
+				$critical = new Critical();
+				$critical->totallycriticalcss_save_post_action();
+			}
 
 			/******************************
 			********* SETUP QUEUE *********
