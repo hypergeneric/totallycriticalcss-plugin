@@ -95,6 +95,13 @@ class Setup {
 		} else {
 			delete_option( 'totallycriticalcss_custom_dequeue' );
 		}
+
+		$selected_styles = $_POST[ 'selected_styles' ];
+		if( $selected_styles ) {
+			update_option( 'totallycriticalcss_selected_styles', $selected_styles );
+		} else {
+			delete_option( 'totallycriticalcss_selected_styles' );
+		}
 	}
 
 }

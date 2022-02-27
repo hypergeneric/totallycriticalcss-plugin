@@ -41,6 +41,7 @@ if ( is_array( $response ) && ! is_wp_error( $response ) ) {
 		<!-- Make these toggleable / dequeue all selected and add to footer / add toggle all -->
 		<div class="group">
 			<div class="toggle-all">Toggle All</div>
+			<div class="rows">
 			<?php
 			foreach ( $sheets as $sheet ) {
 				$sheetid = $sheet->getAttribute('id');
@@ -48,11 +49,27 @@ if ( is_array( $response ) && ! is_wp_error( $response ) ) {
 				array_pop( $sheetid_bits );
 				$sheetid_clean = implode( '-', $sheetid_bits );
 				?>
-				<input type="checkbox" name="sheets" value="<?php echo $sheetid_clean; ?>">
-				<label for="vehicle1"><?php echo '( ' . $sheetid_clean . ' ): ' . $sheet->getAttribute('href'); ?></label><br>
+				<div class="row">
+					<?php
+					$selected_stylesheet_dequeue = get_option( 'totallycriticalcss_selected_styles' );
+
+					$stylesheets = array();
+					if( $selected_stylesheet_dequeue ) {
+						foreach ( $selected_stylesheet_dequeue as $style) {
+							$name = $style[ 'name' ];
+							if( $name == $sheetid_clean ) {
+								array_push( $stylesheets, $name );
+							}
+						}
+					} ?>
+					<input type="checkbox" name="sheets" value="<?php echo $sheetid_clean; ?>" data-url="<?php echo $sheet->getAttribute( 'href' ); ?>" <?php echo in_array( $sheetid_clean, $stylesheets ) ? 'checked="checked"' : ''; ?>>
+
+					<label for="vehicle1"><?php echo '( ' . $sheetid_clean . ' ): ' . $sheet->getAttribute('href'); ?></label><br>
+				</div>
 				<?php
 			}
 			?>
+			</div>
 		</div>
 		<input id="submitForm" name="submitForm" type="submit" value="Submit">
 	</form>

@@ -30,20 +30,36 @@ class Critical {
 	/**
 	* TotallyCriticalCSS Function
 	*/
+	public function get_all_stylesheets() {
+		$selected_stylesheet_dequeue = get_option( 'totallycriticalcss_selected_styles' );
+		$css;
+		foreach ( $selected_stylesheet_dequeue as $style) {
+			$url  = $style[ 'url' ];
+
+			$css .= '&c[]=' . $url;
+		}
+
+		return $css;
+	}
 	public function totallycriticalcss( $id ) {
+		$selected_stylesheet_dequeue = get_option( 'totallycriticalcss_selected_styles' );
+
 		$cri = 'https://api.totallycriticalcss.com/v1/?';
 		$url = get_permalink( $id );
 		$pth = $this->totallycriticalcss_custom_theme_path();
 		$css = $this->totallycriticalcss_stylesheet_path();
 		$key = get_option( 'totallycriticalcss_api_key' ) ? get_option( 'totallycriticalcss_api_key' ) : 'beadf54f56063cc0cce7ded292b8e099';
 
-		$in = file_get_contents( $cri . 'u=' . $url . '&c=' . $css . '&p=' . $pth . '&k=' . $key, false );
+		if( $selected_stylesheet_dequeue ) {
+			$css = $this->get_all_stylesheets();
+			$in = file_get_contents( $cri . 'u=' . $url . $css . '&p=' . $pth . '&k=' . $key, false );
+		} else {
+			$in = file_get_contents( $cri . 'u=' . $url . '&c=' . $css . '&p=' . $pth . '&k=' . $key, false );
+		}
 
 		if( $in ) {
-			if ( ! add_post_meta( $id, 'totallycriticalcss', $in, true ) ) {
-				update_post_meta( $id, 'totallycriticalcss', $in );
-				$this->totallycriticalcss_metabox_callback( $id );
-			}
+			update_post_meta( $id, 'totallycriticalcss', $in );
+			$this->totallycriticalcss_metabox_callback( $id );
 		}
 	}
 
