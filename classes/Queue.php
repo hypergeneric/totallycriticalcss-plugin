@@ -66,11 +66,6 @@ class Queue {
 
 		if( $totallyCriticalCSS ) {
 			echo '<!-- TotallyCriticalCSS --><style>' . $totallyCriticalCSS . '</style><!-- /TotallyCriticalCSS -->';
-			// add_action( 'get_footer', function() {
-			// 	$critical = new Critical();
-			// 	$style_name = get_post_field( 'post_name', get_the_ID() );
-			// 	wp_enqueue_style( $style_name . '-style', $critical->totallycriticalcss_stylesheet_path(), false, null, 'all' );
-			// });
 		}
 
 	}

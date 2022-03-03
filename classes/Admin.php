@@ -6,8 +6,10 @@ class Setup {
 
 	public function totallycriticalcss_admin_setup() {
 		if ( is_admin() ) {
+			$plugin = 'totallycriticalcss-plugin-main/totallycriticalcss.php';
+
 			// we are in admin mode
-			add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array( $this, 'totallycriticalcss_add_settings_link' ) );
+			add_filter( 'plugin_action_links_' . $plugin, array( $this, 'totallycriticalcss_add_settings_link' ) );
 			add_action( 'admin_init', array( $this, 'totallycriticalcss_admin_styles' ) );
 			add_action( 'admin_init', array( $this, 'totallycriticalcss_admin_scripts' ) );
 			add_action( 'admin_menu', array( $this, 'totallycriticalcss_admin_page' ) );
@@ -20,7 +22,7 @@ class Setup {
 	* Add settings link on plugin page
 	*/
 	public function totallycriticalcss_add_settings_link( $links ) {
-		$links[] = '<a href="' . admin_url( 'options-general.php?page=totallycriticalcss' ) . '">' . __( 'Settings' ) . '</a>';
+		$links[] = '<a href="' . admin_url( 'options-general.php?page=totallycriticalcss-plugin-main' ) . '">' . __( 'Settings' ) . '</a>';
 		return $links;
 	}
 
