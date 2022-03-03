@@ -7,7 +7,7 @@ class Setup {
 	public function totallycriticalcss_admin_setup() {
 		if ( is_admin() ) {
 			// we are in admin mode
-			add_filter( 'plugin_action_links_' . basename( dirname( __FILE__ , 2 ) ) . 'totallycriticalcss.php', array( $this, 'totallycriticalcss_add_settings_link' ) );
+			add_filter( 'plugin_action_links_' . basename( dirname( __FILE__ , 2 ) ) . '/totallycriticalcss.php', array( $this, 'totallycriticalcss_add_settings_link' ) );
 			add_action( 'admin_init', array( $this, 'totallycriticalcss_admin_styles' ) );
 			add_action( 'admin_init', array( $this, 'totallycriticalcss_admin_scripts' ) );
 			add_action( 'admin_menu', array( $this, 'totallycriticalcss_admin_page' ) );
