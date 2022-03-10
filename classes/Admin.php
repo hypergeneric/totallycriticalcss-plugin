@@ -7,7 +7,7 @@ class Setup {
 	public function totallycriticalcss_admin_setup() {
 		if ( is_admin() ) {
 			// we are in admin mode
-			add_filter( 'plugin_action_links_' . basename( dirname( __FILE__ , 2 ) ) . '/totallycriticalcss.php', array( $this, 'totallycriticalcss_add_settings_link' ) );
+			add_filter( 'plugin_action_links_' . basename( dirname( TOTALLYCRITICALCSS_PLUGIN_FILE ) ) . '/totallycriticalcss.php', array( $this, 'totallycriticalcss_add_settings_link' ) );
 			add_action( 'admin_init', array( $this, 'totallycriticalcss_admin_styles' ) );
 			add_action( 'admin_init', array( $this, 'totallycriticalcss_admin_scripts' ) );
 			add_action( 'admin_menu', array( $this, 'totallycriticalcss_admin_page' ) );
@@ -20,7 +20,7 @@ class Setup {
 	* Add settings link on plugin page
 	*/
 	public function totallycriticalcss_add_settings_link( $links ) {
-		$links[] = '<a href="' . admin_url( 'options-general.php?page=' . basename( dirname( __FILE__ , 2 ) ) ) . '">' . __( 'Settings' ) . '</a>';
+		$links[] = '<a href="' . admin_url( 'options-general.php?page=' . basename( dirname( TOTALLYCRITICALCSS_PLUGIN_FILE ) ) ) . '">' . __( 'Settings' ) . '</a>';
 		return $links;
 	}
 
@@ -28,7 +28,7 @@ class Setup {
 	* Register and enqueue admin stylesheet
 	*/
 	public function totallycriticalcss_admin_styles() {
-		wp_register_style( 'totallycriticalcss_plugin_stylesheet', plugin_dir_url(__FILE__) . '../admin/css/admin.css' );
+		wp_register_style( 'totallycriticalcss_plugin_stylesheet', plugin_dir_url( TOTALLYCRITICALCSS_PLUGIN_FILE ) . 'admin/css/admin.css' );
 		wp_enqueue_style( 'totallycriticalcss_plugin_stylesheet' );
 	}
 
@@ -36,7 +36,7 @@ class Setup {
 	* Register and enqueue admin scripts
 	*/
 	public function totallycriticalcss_admin_scripts() {
-		wp_register_script( 'totallycriticalcss_script', plugin_dir_url(__FILE__) . '../admin/js/admin.js', array( 'jquery' ) );
+		wp_register_script( 'totallycriticalcss_script', plugin_dir_url( TOTALLYCRITICALCSS_PLUGIN_FILE ) . 'admin/js/admin.js', array( 'jquery' ) );
 		wp_localize_script( 'totallycriticalcss_script', 'totallycriticalcss_obj',
 			array(
 				'ajax_url' => admin_url( 'admin-ajax.php' )
@@ -54,14 +54,14 @@ class Setup {
 			'Totally Critical CSS',
 			'Totally Critical CSS',
 			'administrator',
-			dirname(__FILE__, 2),
+			dirname( TOTALLYCRITICALCSS_PLUGIN_FILE ),
 			array( $this, 'totallycriticalcss_admin_page_settings' ),
 			100
 		);
 	}
 
 	public function totallycriticalcss_admin_page_settings() {
-		require_once __DIR__ . '/../admin/view.php';
+		require_once dirname( TOTALLYCRITICALCSS_PLUGIN_FILE ) . '/admin/view.php';
 	}
 
 	/**

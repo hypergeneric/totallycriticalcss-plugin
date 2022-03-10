@@ -27,6 +27,10 @@ if ( !function_exists( 'write_log' ) ) {
 	}
 }
 
+if ( ! defined( 'TOTALLYCRITICALCSS_PLUGIN_FILE' ) ) {
+	define( 'TOTALLYCRITICALCSS_PLUGIN_FILE', __FILE__ );
+}
+
 require_once 'classes/Admin.php';
 require_once 'classes/Core.php';
 require_once 'classes/Queue.php';
@@ -64,7 +68,40 @@ if ( ! class_exists( 'TotallyCriticalCSS' ) ) {
 
 		}
 
-	}
+		public static function uninstall() {
 
-	$table = new TotallyCriticalCSS();
+			delete_option( 'totallycriticalcss_api_key' );
+			delete_option( 'totallycriticalcss_custom_theme_location' );
+			delete_option( 'totallycriticalcss_custom_stylesheet_location' );
+			delete_option( 'totallycriticalcss_custom_dequeue' );
+			delete_option( 'totallycriticalcss_selected_styles' );
+			delete_option( 'totallycriticalcss_custom_theme_location' );
+			delete_option( 'totallycriticalcss_custom_stylesheet_location' );
+
+			$args = array(
+				'post_type'      => 'page',
+				'posts_per_page' => -1,
+				'post_status'    => 'any'
+			);
+
+			$posts = new WP_Query( $args );
+
+			if ( $posts->have_posts() ) {
+				while ( $posts->have_posts() ) {
+					$posts->the_post();
+					$post_id = get_the_ID();
+					delete_post_meta( $post_id, 'totallycriticalcss' );
+				}
+			}
+		}
+
+	}
+}
+
+if( class_exists( 'TotallyCriticalCSS' ) ) {
+	// Installation and uninstallation hooks
+	register_uninstall_hook( TOTALLYCRITICALCSS_PLUGIN_FILE, array( 'TotallyCriticalCSS', 'uninstall' ) );
+
+	// instantiate the plugin class
+	$wp_plugin = new TotallyCriticalCSS();
 }
