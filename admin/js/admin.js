@@ -35,5 +35,49 @@
 		$( '#admin-view-form .toggle-all' ).click( function() {
 			$( '#admin-view-form .group input' ).click().change();
 		} );
+
+
+		// Tabs
+		var clickedTab      = $("#tccssWrapper .tabs > .active");
+		var tabWrapper      = $("#tccssWrapper .tab__content");
+		var activeTab       = tabWrapper.find(".active");
+		var activeTabHeight = activeTab.outerHeight();
+		
+		activeTab.show();
+		
+		tabWrapper.height(activeTabHeight);
+		
+		$("#tccssWrapper .tabs > li").on("click", function() {
+			
+			$("#tccssWrapper .tabs > li").removeClass("active");
+			
+			$(this).addClass("active");
+			
+			clickedTab = $("#tccssWrapper .tabs .active");
+			
+			activeTab.fadeOut(150, function() {
+				
+				$("#tccssWrapper .tab__content > li").removeClass("active");
+				
+				var clickedTabIndex = clickedTab.index();
+
+				$("#tccssWrapper .tab__content > li").eq(clickedTabIndex).addClass("active");
+				
+				activeTab = $("#tccssWrapper .tab__content > .active");
+				
+				activeTabHeight = activeTab.outerHeight();
+				
+				tabWrapper.stop().delay(30).animate({
+					height: activeTabHeight
+				}, 200, function() {
+					
+					// Fade in active tab
+					activeTab.delay(30).fadeIn(150);
+					
+				});
+			});
+		});
+		
+	
 	});
-} ( jQuery, window, document ) );//https://tealium.lndo.site/wp-content/themes/Jupiter-child/jasper/assets/css/style.min.css
+} ( jQuery, window, document ) );

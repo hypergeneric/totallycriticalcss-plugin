@@ -11,10 +11,155 @@ li[class*="totallycriticalcss"] .wp-menu-image img {
 /****
 **** General styling
 ****/
+img {
+    height: auto;
+    max-width: 100%;
+}
+#admin-view {
+	padding-top: 40px;
+	padding-right: 20px;
+}
 #admin-view-form .field {
 	margin-bottom: 1.5rem;
 }
 
 #admin-view-form .field input {
 	width: 550px;
+}
+
+#admin-view #submitWrap {
+	text-align: center;
+	margin-top: 20px;
+}
+#admin-view #submitWrap #submitForm {
+	border:  0px;
+	background-color: #43454b;
+	color: #ffffff;
+	padding: 20px 60px;
+	text-transform: uppercase;
+	border-radius: 5px;
+	cursor: pointer;
+	-moz-transition: all .4s ease;
+	-webkit-transition: all .4s ease;
+	-o-transition: all .4s ease;
+	transition: all .4s ease;
+}
+#admin-view #submitWrap #submitForm:hover {
+	background-color: #222;
+}
+#logo {
+	text-align: center;
+	max-width: 500px;
+	margin: 0 auto 30px auto;
+}
+#logo img {
+}
+#tccssWrapper * {
+	box-sizing: border-box;
+	padding: 0;
+	margin: 0;
+}
+#tccssWrapper hr {
+	height: 1px;
+	border:  0px;
+	margin: 30px 0;
+	background-color: #eee;
+}
+#tccssWrapper .text-color {
+	color: #46a1de;
+	transition-duration: 0.2s;
+}
+
+#tccssWrapper {
+	max-width: 700px;
+	margin: 0 auto;
+}
+
+#tccssWrapper .tabs {
+	display: table;
+	table-layout: fixed;
+	width: 100%;
+	-webkit-transform: translateY(5px);
+	transform: translateY(5px);
+}
+#tccssWrapper .tabs > li {
+	transition-duration: 0.15s;
+	display: table-cell;
+	list-style: none;
+	padding: 20px 20px 25px 20px;
+	position: relative;
+	text-align: center;
+	overflow: hidden;
+	cursor: pointer;
+	color: #222;
+}
+#tccssWrapper .tabs > li:before {
+	z-index: -1;
+	position: absolute;
+	content: "";
+	width: 100%;
+	height: 120%;
+	top: 0;
+	left: 0;
+	background-color: rgba(255, 255, 255, 0.7);
+	-webkit-transform: translateY(100%);
+	transform: translateY(100%);
+	transition-duration: 0.15s;
+	border-radius: 5px 5px 0 0;
+}
+#tccssWrapper .tabs > li:hover:before {
+	-webkit-transform: translateY(70%);
+	transform: translateY(70%);
+}
+#tccssWrapper .tabs > li.active {
+	color: #50555a;
+}
+#tccssWrapper .tabs > li.active:before {
+	transition-duration: 0.2s;
+	background-color: white;
+	-webkit-transform: translateY(0);
+	transform: translateY(0);
+}
+
+#tccssWrapper .tab__content {
+	background-color: white;
+	position: relative;
+	width: 100%;
+	border-radius: 5px;
+}
+#tccssWrapper .tab__content input[type='text'] {
+	width: 100%;
+	height: 50px;
+	padding: 10px;	
+}
+#tccssWrapper .tab__content > li {
+	width: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	display: none;
+	list-style: none;
+}
+#tccssWrapper .tab__content > li .content__wrapper {
+	text-align: left;
+	border-radius: 5px;
+	width: 100%;
+	padding: 45px 40px 40px 40px;
+	background-color: white;
+}
+
+#tccssWrapper .content__wrapper .field label {
+	font-weight: 700;
+	font-size: 16px;
+	padding-bottom: 10px;
+	display: inline-block;
+}
+#tccssWrapper .content__wrapper label span.sheetid {
+	font-weight:  700;
+}
+#tccssWrapper .content__wrapper .toggle-all {
+	display: inline-block;
+	margin-top: 10px;
+	cursor: pointer;
+
 }
