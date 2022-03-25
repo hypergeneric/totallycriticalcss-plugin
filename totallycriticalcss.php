@@ -87,27 +87,9 @@ if ( ! class_exists( 'TotallyCriticalCSS' ) ) {
 			delete_option( 'totallycriticalcss_custom_stylesheet_location' );
 			delete_option( 'totallycriticalcss_custom_dequeue' );
 			delete_option( 'totallycriticalcss_selected_styles' );
-			delete_option( 'totallycriticalcss_custom_stylesheet_location' );
 			delete_option( 'totallycriticalcss_selected_cpt' );
 			TotallyCriticalCSS::clear_tcss_data();
-			
-			
 
-			/*$args = array(
-				'post_type'      => 'page',
-				'posts_per_page' => -1,
-				'post_status'    => 'any'
-			);
-
-			$posts = new WP_Query( $args );
-
-			if ( $posts->have_posts() ) {
-				while ( $posts->have_posts() ) {
-					$posts->the_post();
-					$post_id = get_the_ID();
-					delete_post_meta( $post_id, 'totallycriticalcss' );
-				}
-			}*/
 		}
 
 	}
