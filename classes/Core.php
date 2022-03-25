@@ -10,15 +10,6 @@ class Critical {
 	}
 
 	/**
-	* Store Path
-	*/
-	public function totallycriticalcss_custom_theme_path() {
-		$theme_path = get_option( 'totallycriticalcss_custom_theme_location' ) ? get_option( 'totallycriticalcss_custom_theme_location' ) : get_template_directory_uri();
-
-		return $theme_path;
-	}
-
-	/**
 	* Store Stylesheet
 	*/
 	public function totallycriticalcss_stylesheet_path() {
@@ -31,36 +22,48 @@ class Critical {
 	* TotallyCriticalCSS Function
 	*/
 	public function get_all_stylesheets() {
-		$selected_stylesheet_dequeue = get_option( 'totallycriticalcss_selected_styles' );
-		$css;
-		foreach ( $selected_stylesheet_dequeue as $style) {
-			$url  = $style[ 'url' ];
-
-			$css .= '&c[]=' . $url;
+		$totallycriticalcss_selected_styles = get_option( 'totallycriticalcss_selected_styles' );
+		
+		if( $totallycriticalcss_selected_styles ) {
+			$css = [];
+			foreach ( $totallycriticalcss_selected_styles as $style) {
+				$css[] = $style[ 'url' ];
+			}
+			$css = implode( '::::', $css );
+		} else {
+			$css = $this->totallycriticalcss_stylesheet_path();
 		}
-
+		$css = str_replace( 'totallycritical.lndo.site', 'totallycriticalcss.com', $css );
 		return $css;
 	}
+	
+	/**
+	* TotallyCriticalCSS Function
+	*/
+	public function get_api_key() {
+		return get_option( 'totallycriticalcss_api_key' ) ? get_option( 'totallycriticalcss_api_key' ) : 'beadf54f56063cc0cce7ded292b8e099';
+	}
+	
 	public function totallycriticalcss( $id ) {
-		$selected_stylesheet_dequeue = get_option( 'totallycriticalcss_selected_styles' );
-
-		$cri = 'https://api.totallycriticalcss.com/v1/?';
-		$url = get_permalink( $id );
-		$pth = $this->totallycriticalcss_custom_theme_path();
-		$css = $this->totallycriticalcss_stylesheet_path();
-		$key = get_option( 'totallycriticalcss_api_key' ) ? get_option( 'totallycriticalcss_api_key' ) : 'beadf54f56063cc0cce7ded292b8e099';
-
-		if( $selected_stylesheet_dequeue ) {
-			$css = $this->get_all_stylesheets();
-			$in = file_get_contents( $cri . 'u=' . $url . $css . '&p=' . $pth . '&k=' . $key, false );
+		
+		$uri = 'http://api.totallycriticalcss.com/v1/';
+		$query = [
+			'u' => str_replace( 'totallycritical.lndo.site', 'totallycriticalcss.com', get_permalink( $id ) ),
+			'c' => $this->get_all_stylesheets(),
+			'k' => $this->get_api_key(),
+			't' => md5( uniqid( '', true ) ),
+		];
+		
+		$response = wp_remote_get( $uri . "?" . http_build_query( $query ), [ 'timeout' => 30 ] );
+		if ( ! is_wp_error( $response ) ) {
+			update_post_meta( $id, 'totallycriticalcss', $response['body'] );
+			$this->totallycriticalcss_metabox_callback( $id );
 		} else {
-			$in = file_get_contents( $cri . 'u=' . $url . '&c=' . $css . '&p=' . $pth . '&k=' . $key, false );
-		}
-
-		if( $in ) {
-			update_post_meta( $id, 'totallycriticalcss', $in );
+			$data = '{"success":false,"message":"' . addslashes( $response->get_error_message() ) . '"}';
+			update_post_meta( $id, 'totallycriticalcss', $data );
 			$this->totallycriticalcss_metabox_callback( $id );
 		}
+		
 	}
 
 	/**
@@ -74,13 +77,25 @@ class Critical {
 	* Register metabox
 	*/
 	public function totallycriticalcss_metabox() {
-		add_meta_box( 'totallycriticalcss_metabox_id', __( 'TotallyCriticalCSS', 'cr_crit' ), array( $this, 'totallycriticalcss_metabox_callback' ), 'page', 'side', 'high' );
+		$my_post_types = get_option( 'totallycriticalcss_selected_cpt' );
+		foreach ( $my_post_types as $my_post_type ) {
+			add_meta_box( 'totallycriticalcss_metabox_id', __( 'TotallyCriticalCSS', 'cr_crit' ), array( $this, 'totallycriticalcss_metabox_callback' ), $my_post_type, 'side', 'high' );
+		}
 	}
 
 	public function totallycriticalcss_metabox_callback( $meta_id  ) {
-		$status = get_post_meta( $meta_id->ID, 'totallycriticalcss', true ) ? '<strong style="color: green; text-transform: uppercase;">Generated</strong>' : '<strong style="color: red; text-transform: uppeprcase;">Not Generated</strong>';
-		$output = 'TotallyCriticalCSS is '. $status;
-		echo $output;
+		$data = get_post_meta( $meta_id->ID, 'totallycriticalcss', true );
+		if ( ! $data ) {
+			$status = 'TotallyCriticalCSS is <strong style="color: red; text-transform: uppeprcase;">Not Generated</strong>';
+		} else {
+			$data = json_decode( $data );
+			if ( $data == null ) {
+				$status = '<strong style="color: red; text-transform: uppeprcase;">Error: Invalid Server Response</strong>';
+			} else  {
+				$status = $data->success === true ? 'TotallyCriticalCSS is <strong style="color: green; text-transform: uppercase;">Generated</strong>' : '<strong style="color: red; text-transform: uppeprcase;">Error: ' . $data->message . '</strong>';
+			}
+		}
+		echo $status;
 	}
 
 }

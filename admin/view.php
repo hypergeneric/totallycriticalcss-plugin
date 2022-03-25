@@ -1,13 +1,12 @@
 <?php
+
 // Admin View Options Page
 
 $sheets = [];
 $response = wp_remote_get( get_home_url() );
-
 if ( is_array( $response ) && ! is_wp_error( $response ) ) {
 	$headers = $response[ 'headers' ]; // array of http header lines
 	$body    = $response[ 'body' ]; // use the content
-
 	$doc = new DOMDocument();
 	$doc->loadHTML( $body, LIBXML_NOWARNING | LIBXML_NOERROR );
 	$domcss = $doc->getElementsByTagName( 'link' );
@@ -18,6 +17,8 @@ if ( is_array( $response ) && ! is_wp_error( $response ) ) {
 	}
 }
 
+$my_post_types = get_post_types();
+
 ?>
 <div id="admin-view">
 	<div id="logo"><img src="<?php echo plugin_dir_url( __DIR__ ); ?>admin/images/logo.png"></div>
@@ -25,8 +26,9 @@ if ( is_array( $response ) && ! is_wp_error( $response ) ) {
 		<section id="tccssWrapper">
 			<ul class="tabs">
 				<li class="active">Stylesheets</li>
+				<li class="">Custom Post Types</li>
 				<li class="">Settings</li>
-				<li>API Key</li>
+				<li class="">API Key</li>
 			</ul>
 
 			<ul class="tab__content">
@@ -35,7 +37,7 @@ if ( is_array( $response ) && ! is_wp_error( $response ) ) {
 						<!-- Make these toggleable / dequeue all selected and add to footer / add toggle all -->
 						<div class="group">
 							<div class="field custom-dequeue">
-								<label for="customDequeue">Custom Stylesheet Dequeue (comma-separated):</label><br>
+								<label for="customDequeue">Additional Custom Stylesheet Dequeue (comma-separated):</label><br>
 								<input id="customDequeue" name="customDequeue" type="text" placeholder="Insert Stylesheet Names i.e. parent,child" value="<?php echo get_option( 'totallycriticalcss_custom_dequeue' ); ?>">
 							</div>	
 							<div class="rows">
@@ -73,10 +75,25 @@ if ( is_array( $response ) && ! is_wp_error( $response ) ) {
 				</li>
 				<li>
 					<div class="content__wrapper">
-						<div class="field custom-theme">
-							<label for="customTheme">Custom Theme Location:</label><br>
-							<input id="customTheme" name="customTheme" type="text" placeholder="Insert Custom Theme Location" value="<?php echo get_option( 'totallycriticalcss_custom_theme_location' ); ?>">
+						<!-- Make these toggleable / dequeue all selected and add to footer / add toggle all -->
+						<div class="group">
+							<div class="rows">
+							<?php
+							$totallycriticalcss_selected_cpt = get_option( 'totallycriticalcss_selected_cpt' ) === false ? [] : get_option( 'totallycriticalcss_selected_cpt' );
+							foreach ( $my_post_types as $my_post_type ) {
+								$post_type_obj = get_post_type_object( $my_post_type );
+							?>
+								<div class="row">
+									<input type="checkbox" name="my_post_types" id="<?php echo $my_post_type; ?>" value="<?php echo $my_post_type; ?>" <?php echo in_array( $my_post_type, $totallycriticalcss_selected_cpt ) ? 'checked="checked"' : ''; ?>>
+									<label for="<?php echo $my_post_type; ?>"><span class='cpt'><?php echo $post_type_obj->labels->singular_name; ?></span></label><br>
+								</div>
+							<?php } ?>
+							</div>
 						</div>
+					</div>
+				</li>
+				<li>
+					<div class="content__wrapper">
 						<div class="field custom-stylesheet">
 							<label for="customStylesheet">Custom Stylesheet Location:</label><br>
 							<input id="customStylesheet" name="customStylesheet" type="text" placeholder="Insert Custom Stylesheet Location" value="<?php echo get_option( 'totallycriticalcss_custom_stylesheet_location' ); ?>">

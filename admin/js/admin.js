@@ -11,9 +11,14 @@
 			var customStylesheet = $( this ).find( '#customStylesheet' ).val();
 			var customDequeue = $( this ).find( '#customDequeue' ).val();
 			var selectedStyles = [];
-			$( '#admin-view-form .row input:checked' ).each( function() {
+			$( '#admin-view-form .row input[name="sheets"]:checked' ).each( function() {
 				selectedStyles.push( { name: $( this ).val(), url: $( this ).data( 'url' ) } );
 			} );
+			var my_post_types = [];
+			$( '#admin-view-form .row input[name="my_post_types"]:checked' ).each( function() {
+				my_post_types.push( { name: $( this ).val() } );
+			} );
+			console.log(my_post_types);
 
 			$.ajax( {
 				method: 'POST',
@@ -24,7 +29,8 @@
 					custom_theme: customTheme,
 					custom_stylesheet: customStylesheet,
 					custom_dequeue: customDequeue,
-					selected_styles: selectedStyles
+					selected_styles: selectedStyles,
+					my_post_types: my_post_types
 				},
 				success: function( response ) {
 					location.reload();

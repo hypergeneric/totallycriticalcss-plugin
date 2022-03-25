@@ -75,13 +75,6 @@ class Setup {
 			delete_option( 'totallycriticalcss_api_key' );
 		}
 
-		$custom_theme = $_POST[ 'custom_theme' ];
-		if( $custom_theme ) {
-			update_option( 'totallycriticalcss_custom_theme_location', $custom_theme );
-		} else {
-			delete_option( 'totallycriticalcss_custom_theme_location' );
-		}
-
 		$custom_stylesheet = $_POST[ 'custom_stylesheet' ];
 		if( $custom_stylesheet ) {
 			update_option( 'totallycriticalcss_custom_stylesheet_location', $custom_stylesheet );
@@ -102,6 +95,14 @@ class Setup {
 		} else {
 			delete_option( 'totallycriticalcss_selected_styles' );
 		}
+		
+		$my_post_types = $_POST[ 'my_post_types' ];
+		if( $my_post_types ) {
+			update_option( 'totallycriticalcss_selected_cpt', $my_post_types );
+		} else {
+			delete_option( 'totallycriticalcss_selected_cpt' );
+		}
+		
 	}
 
 }
