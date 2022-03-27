@@ -15,6 +15,8 @@ class Setup {
 			add_action( 'wp_ajax_totallycriticalcss_save_admin_page', array( $this, 'totallycriticalcss_save_admin_page' ) );
 			add_action( 'wp_ajax_totallycriticalcss_add_custum_dequeue', array( $this, 'totallycriticalcss_add_custum_dequeue' ) );
 			add_action( 'wp_ajax_totallycriticalcss_delete_custum_dequeue', array( $this, 'totallycriticalcss_delete_custum_dequeue' ) );
+			add_action( 'wp_ajax_totallycriticalcss_add_custum_route', array( $this, 'totallycriticalcss_add_custum_route' ) );
+			add_action( 'wp_ajax_totallycriticalcss_delete_custum_route', array( $this, 'totallycriticalcss_delete_custum_route' ) );
 		}
 	}
 
@@ -125,6 +127,32 @@ class Setup {
 		update_option( 'totallycriticalcss_custom_dequeue', $custom_dequeue );
 		
 		wp_send_json_success( $custom_dequeue );
+		
+	}
+	
+	public function totallycriticalcss_add_custum_route() {
+		
+		$form_url = $_POST[ 'form_url' ];
+		
+		$custom_route = get_option( 'totallycriticalcss_custom_routes' );
+		$custom_route[] = $form_url;
+		
+		update_option( 'totallycriticalcss_custom_routes', $custom_route );
+		
+		wp_send_json_success( $custom_route );
+		
+	}
+	
+	public function totallycriticalcss_delete_custum_route() {
+		
+		$url_index = $_POST[ 'url_index' ];
+		
+		$custom_route = get_option( 'totallycriticalcss_custom_routes' );
+		unset( $custom_route[$url_index] );
+		
+		update_option( 'totallycriticalcss_custom_routes', $custom_route );
+		
+		wp_send_json_success( $custom_route );
 		
 	}
 

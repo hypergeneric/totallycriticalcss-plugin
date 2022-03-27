@@ -22,6 +22,10 @@ $totallycriticalcss_selected_cpt = get_option( 'totallycriticalcss_selected_cpt'
 // get the options for custom styles\
 $totallycriticalcss_custom_dequeue = get_option( 'totallycriticalcss_custom_dequeue' ) === false ? [] : get_option( 'totallycriticalcss_custom_dequeue' );
 
+// get the options for custom styles\
+$totallycriticalcss_custom_routes = get_option( 'totallycriticalcss_custom_routes' ) === false ? [] : get_option( 'totallycriticalcss_custom_routes' );
+print_r( $totallycriticalcss_custom_routes);
+
 $selected_stylesheet_dequeue = get_option( 'totallycriticalcss_selected_styles' ) === false ? [] : get_option( 'totallycriticalcss_selected_styles' );
 $stylesheets = [];
 foreach ( $selected_stylesheet_dequeue as $style ) {
@@ -155,6 +159,45 @@ foreach ( $selected_stylesheet_dequeue as $style ) {
 							</table>
 							
 						</div>
+					</div>
+				</li>
+				<li>
+					<div class="content__wrapper">
+						
+						<table>
+							<th>
+								<td>
+									<span class='handle'>Custom Routes</span>
+								</td>
+							</th>
+							<?php $i = 0; foreach ( $totallycriticalcss_custom_routes as $url ) { ?>
+								<tr>
+									<td class="check">
+										<input type="checkbox" 
+											disabled="disabled"
+											checked="checked" />
+									</td>
+									<td>
+										<span class=''><?php echo $url; ?></span>
+									</td>
+									<td class="actions">
+										<button class="button route-delete" data-index="<?php echo $i; ?>">
+											<span class="dashicons dashicons-trash"></span>
+										</button>
+									</td>
+								</tr>
+							<?php $i++; } ?>
+						</table>
+						
+						<div id="custum-dequeue-add-route" class="adder-form">
+							<label for="">URL</label>
+							<input id="add-route-url" type="text" />
+							<button id="add-custum-route" class="button button-primary">Add</button>
+							<button id="cancel-custom-route" class="button">Cancel</button>
+						</div>
+						
+						<button id="show-custum-route" class="button button-primary">Add Custom Route</button>
+						
 					</div>
 				</li>
 				<li>

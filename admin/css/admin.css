@@ -185,6 +185,9 @@ img {
 	#tccssWrapper table td.actions {
 		width: 72px;
 	}
+		#tccssWrapper table .route-delete span  {
+			display: block;
+		}
 		#tccssWrapper table .dequeue-delete span  {
 			display: block;
 		}

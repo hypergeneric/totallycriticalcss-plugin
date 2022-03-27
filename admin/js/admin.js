@@ -3,6 +3,20 @@
 	$( document ).ready( function () {
 		var ajaxURL = totallycriticalcss_obj.ajax_url;
 		
+		$( '#show-custum-route' ).click( function( e ) {
+			$( '#custum-dequeue-add-route' ).show();
+			$( this ).hide();
+			e.preventDefault();
+			return false;
+		} );
+		
+		$( '#cancel-custom-route' ).click( function( e ) {
+			$( '#show-custum-route' ).show();
+			$( '#custum-dequeue-add-route' ).hide();
+			e.preventDefault();
+			return false;
+		} );
+		
 		$( '#show-custum-dequeue' ).click( function( e ) {
 			$( '#custum-dequeue-add-form' ).show();
 			$( this ).hide();
@@ -40,6 +54,22 @@
 			return false;
 		} );
 		
+		$( '#add-custum-route' ).click( function( e ) {
+			$.ajax( {
+				method: 'POST',
+				url: ajaxURL,
+				data:{
+					action: 'totallycriticalcss_add_custum_route',
+					form_url: $( '#add-route-url' ).val(),
+				},
+				success: function( response ) {
+					console.log(response);
+				}
+			} );
+			e.preventDefault();
+			return false;
+		} );
+		
 		$( '.dequeue-delete' ).click( function( e ) {
 			$.ajax( {
 				method: 'POST',
@@ -47,6 +77,22 @@
 				data:{
 					action: 'totallycriticalcss_delete_custum_dequeue',
 					form_handle: $( this ).data( 'handle' ),
+				},
+				success: function( response ) {
+					console.log(response);
+				}
+			} );
+			e.preventDefault();
+			return false;
+		} );
+		
+		$( '.route-delete' ).click( function( e ) {
+			$.ajax( {
+				method: 'POST',
+				url: ajaxURL,
+				data:{
+					action: 'totallycriticalcss_delete_custum_route',
+					url_index: $( this ).data( 'index' ),
 				},
 				success: function( response ) {
 					console.log(response);
