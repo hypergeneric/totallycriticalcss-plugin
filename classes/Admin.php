@@ -13,6 +13,8 @@ class Setup {
 			add_action( 'admin_menu', array( $this, 'totallycriticalcss_admin_page' ) );
 			add_action( 'wp_ajax_nopriv_totallycriticalcss_save_admin_page', array( $this, 'totallycriticalcss_save_admin_page' ) );
 			add_action( 'wp_ajax_totallycriticalcss_save_admin_page', array( $this, 'totallycriticalcss_save_admin_page' ) );
+			add_action( 'wp_ajax_totallycriticalcss_add_custum_dequeue', array( $this, 'totallycriticalcss_add_custum_dequeue' ) );
+			add_action( 'wp_ajax_totallycriticalcss_delete_custum_dequeue', array( $this, 'totallycriticalcss_delete_custum_dequeue' ) );
 		}
 	}
 
@@ -68,6 +70,7 @@ class Setup {
 	* Update Form Data when submitted
 	*/
 	public function totallycriticalcss_save_admin_page() {
+		
 		$api_key = $_POST[ 'api_key' ];
 		if( $api_key ) {
 			update_option( 'totallycriticalcss_api_key', $api_key );
@@ -80,13 +83,6 @@ class Setup {
 			update_option( 'totallycriticalcss_custom_stylesheet_location', $custom_stylesheet );
 		} else {
 			delete_option( 'totallycriticalcss_custom_stylesheet_location' );
-		}
-
-		$custom_dequeue = $_POST[ 'custom_dequeue' ];
-		if( $custom_dequeue ) {
-			update_option( 'totallycriticalcss_custom_dequeue', $custom_dequeue );
-		} else {
-			delete_option( 'totallycriticalcss_custom_dequeue' );
 		}
 
 		$selected_styles = $_POST[ 'selected_styles' ];
@@ -102,6 +98,33 @@ class Setup {
 		} else {
 			delete_option( 'totallycriticalcss_selected_cpt' );
 		}
+		
+	}
+	
+	public function totallycriticalcss_add_custum_dequeue() {
+		
+		$form_handle = $_POST[ 'form_handle' ];
+		$form_url = $_POST[ 'form_url' ];
+		
+		$custom_dequeue = get_option( 'totallycriticalcss_custom_dequeue' );
+		$custom_dequeue[$form_handle] = $form_url;
+		
+		update_option( 'totallycriticalcss_custom_dequeue', $custom_dequeue );
+		
+		wp_send_json_success( $custom_dequeue );
+		
+	}
+	
+	public function totallycriticalcss_delete_custum_dequeue() {
+		
+		$form_handle = $_POST[ 'form_handle' ];
+		
+		$custom_dequeue = get_option( 'totallycriticalcss_custom_dequeue' );
+		unset( $custom_dequeue[$form_handle] );
+		
+		update_option( 'totallycriticalcss_custom_dequeue', $custom_dequeue );
+		
+		wp_send_json_success( $custom_dequeue );
 		
 	}
 

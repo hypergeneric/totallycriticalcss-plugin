@@ -16,8 +16,8 @@ img {
     max-width: 100%;
 }
 #admin-view {
-	padding-top: 40px;
-	padding-right: 20px;
+	padding: 40px;
+	max-width: 700px;
 }
 #admin-view-form .field {
 	margin-bottom: 1.5rem;
@@ -28,7 +28,6 @@ img {
 }
 
 #admin-view #submitWrap {
-	text-align: center;
 	margin-top: 20px;
 }
 #admin-view #submitWrap #submitForm {
@@ -50,14 +49,10 @@ img {
 #logo {
 	text-align: center;
 	max-width: 500px;
-	margin: 0 auto 30px auto;
-}
-#logo img {
+	margin: 0 0 30px 0;
 }
 #tccssWrapper * {
 	box-sizing: border-box;
-	padding: 0;
-	margin: 0;
 }
 #tccssWrapper hr {
 	height: 1px;
@@ -68,11 +63,6 @@ img {
 #tccssWrapper .text-color {
 	color: #46a1de;
 	transition-duration: 0.2s;
-}
-
-#tccssWrapper {
-	max-width: 700px;
-	margin: 0 auto;
 }
 
 #tccssWrapper .tabs {
@@ -129,7 +119,6 @@ img {
 }
 #tccssWrapper .tab__content input[type='text'] {
 	width: 100%;
-	height: 50px;
 	padding: 10px;	
 }
 #tccssWrapper .tab__content > li {
@@ -154,12 +143,67 @@ img {
 	padding-bottom: 10px;
 	display: inline-block;
 }
-#tccssWrapper .content__wrapper label span.sheetid {
-	font-weight:  700;
-}
+
 #tccssWrapper .content__wrapper .toggle-all {
 	display: inline-block;
 	margin-top: 10px;
 	cursor: pointer;
-
 }
+
+
+
+
+
+
+
+#tccssWrapper table {
+	border-collapse: collapse;
+	border: 1px solid #ddd;
+	border-radius: 0;
+	box-shadow: 3px 3px 0px 0px rgba(0,0,0,0.03);
+	width: 100%;
+	margin-bottom: 16px;
+}
+	#tccssWrapper table td, #tccssWrapper table th {
+		padding: 10px;
+		border: 1px solid #dee2e6;
+	}
+	#tccssWrapper table td.check {
+		width: 42px;
+	}
+		#tccssWrapper table td.check input {
+			margin: 0;
+		}
+	#tccssWrapper table .handle  {
+		font-weight: bold;
+		font-size: large;
+	}
+	#tccssWrapper table .url  {
+		display: block;
+		font-size: smaller;
+	}
+	#tccssWrapper table td.actions {
+		width: 72px;
+	}
+		#tccssWrapper table .dequeue-delete span  {
+			display: block;
+		}
+
+#tccssWrapper .adder-form {
+	display: none;
+	padding: 16px;
+	border: 1px solid #ddd;
+	box-shadow: 3px 3px 0px 0px rgba(0,0,0,0.03);
+	width: 100%;
+	margin-bottom: 16px;
+}
+	#tccssWrapper .adder-form input {
+		border-radius: 0;
+		border: 1px solid #ddd;
+		padding: 5px 10px !important;
+		margin-bottom: 16px;
+	}
+	
+	#tccssWrapper #show-custum-dequeue {
+		margin-bottom: 32px;
+	}

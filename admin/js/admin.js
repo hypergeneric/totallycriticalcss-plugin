@@ -2,6 +2,59 @@
 	'use strict';
 	$( document ).ready( function () {
 		var ajaxURL = totallycriticalcss_obj.ajax_url;
+		
+		$( '#show-custum-dequeue' ).click( function( e ) {
+			$( '#custum-dequeue-add-form' ).show();
+			$( this ).hide();
+			e.preventDefault();
+			return false;
+		} );
+		
+		$( '#cancel-custum-dequeue' ).click( function( e ) {
+			$( '#show-custum-dequeue' ).show();
+			$( '#custum-dequeue-add-form' ).hide();
+			e.preventDefault();
+			return false;
+		} );
+		
+		$( '#styles-toggle-all' ).click( function( e ) {
+			$( '#admin-view-form input[name="sheets"]' ).each( function () { this.checked = !this.checked; } );
+			e.preventDefault();
+			return false;
+		} );
+		
+		$( '#add-custum-dequeue' ).click( function( e ) {
+			$.ajax( {
+				method: 'POST',
+				url: ajaxURL,
+				data:{
+					action: 'totallycriticalcss_add_custum_dequeue',
+					form_handle: $( '#add-form-handle' ).val(),
+					form_url: $( '#add-form-url' ).val(),
+				},
+				success: function( response ) {
+					console.log(response);
+				}
+			} );
+			e.preventDefault();
+			return false;
+		} );
+		
+		$( '.dequeue-delete' ).click( function( e ) {
+			$.ajax( {
+				method: 'POST',
+				url: ajaxURL,
+				data:{
+					action: 'totallycriticalcss_delete_custum_dequeue',
+					form_handle: $( this ).data( 'handle' ),
+				},
+				success: function( response ) {
+					console.log(response);
+				}
+			} );
+			e.preventDefault();
+			return false;
+		} );
 
 		$( '#admin-view-form' ).submit( function( e ) {
 			e.preventDefault();
@@ -9,14 +62,13 @@
 			var apiKey = $( this ).find( '#apiKey' ).val();
 			var customTheme = $( this ).find( '#customTheme' ).val();
 			var customStylesheet = $( this ).find( '#customStylesheet' ).val();
-			var customDequeue = $( this ).find( '#customDequeue' ).val();
 			var selectedStyles = [];
-			$( '#admin-view-form .row input[name="sheets"]:checked' ).each( function() {
+			$( '#admin-view-form input[name="sheets"]:checked' ).each( function() {
 				selectedStyles.push( { name: $( this ).val(), url: $( this ).data( 'url' ) } );
 			} );
 			var my_post_types = [];
-			$( '#admin-view-form .row input[name="my_post_types"]:checked' ).each( function() {
-				my_post_types.push( { name: $( this ).val() } );
+			$( '#admin-view-form input[name="my_post_types"]:checked' ).each( function() {
+				my_post_types.push( $( this ).val() );
 			} );
 			console.log(my_post_types);
 
@@ -28,7 +80,6 @@
 					api_key: apiKey,
 					custom_theme: customTheme,
 					custom_stylesheet: customStylesheet,
-					custom_dequeue: customDequeue,
 					selected_styles: selectedStyles,
 					my_post_types: my_post_types
 				},
@@ -38,9 +89,7 @@
 			} );
 		} );
 
-		$( '#admin-view-form .toggle-all' ).click( function() {
-			$( '#admin-view-form .group input' ).click().change();
-		} );
+		
 
 
 		// Tabs
