@@ -6,12 +6,9 @@ class Setup {
 
 	public function totallycriticalcss_admin_setup() {
 		if ( is_admin() ) {
-			// we are in admin mode
 			add_filter( 'plugin_action_links_' . basename( dirname( TOTALLYCRITICALCSS_PLUGIN_FILE ) ) . '/totallycriticalcss.php', array( $this, 'totallycriticalcss_add_settings_link' ) );
-			add_action( 'admin_init', array( $this, 'totallycriticalcss_admin_styles' ) );
-			add_action( 'admin_init', array( $this, 'totallycriticalcss_admin_scripts' ) );
+			add_action( 'admin_init', array( $this, 'totallycriticalcss_admin_init' ) );
 			add_action( 'admin_menu', array( $this, 'totallycriticalcss_admin_page' ) );
-			add_action( 'wp_ajax_nopriv_totallycriticalcss_save_admin_page', array( $this, 'totallycriticalcss_save_admin_page' ) );
 			add_action( 'wp_ajax_totallycriticalcss_save_admin_page', array( $this, 'totallycriticalcss_save_admin_page' ) );
 			add_action( 'wp_ajax_totallycriticalcss_add_custum_dequeue', array( $this, 'totallycriticalcss_add_custum_dequeue' ) );
 			add_action( 'wp_ajax_totallycriticalcss_delete_custum_dequeue', array( $this, 'totallycriticalcss_delete_custum_dequeue' ) );
@@ -29,17 +26,11 @@ class Setup {
 	}
 
 	/**
-	* Register and enqueue admin stylesheet
+	* Register and enqueue admin stylesheet & scripts
 	*/
-	public function totallycriticalcss_admin_styles() {
+	public function totallycriticalcss_admin_init() {
 		wp_register_style( 'totallycriticalcss_plugin_stylesheet', plugin_dir_url( TOTALLYCRITICALCSS_PLUGIN_FILE ) . 'admin/css/admin.css' );
 		wp_enqueue_style( 'totallycriticalcss_plugin_stylesheet' );
-	}
-
-	/**
-	* Register and enqueue admin scripts
-	*/
-	public function totallycriticalcss_admin_scripts() {
 		wp_register_script( 'totallycriticalcss_script', plugin_dir_url( TOTALLYCRITICALCSS_PLUGIN_FILE ) . 'admin/js/admin.js', array( 'jquery' ) );
 		wp_localize_script( 'totallycriticalcss_script', 'totallycriticalcss_obj',
 			array(
@@ -64,6 +55,9 @@ class Setup {
 		);
 	}
 
+	/**
+	* Rebder admin view
+	*/
 	public function totallycriticalcss_admin_page_settings() {
 		require_once dirname( TOTALLYCRITICALCSS_PLUGIN_FILE ) . '/admin/view.php';
 	}
@@ -108,7 +102,7 @@ class Setup {
 		$form_handle = $_POST[ 'form_handle' ];
 		$form_url = $_POST[ 'form_url' ];
 		
-		$custom_dequeue = get_option( 'totallycriticalcss_custom_dequeue' );
+		$custom_dequeue = get_option( 'totallycriticalcss_custom_dequeue' ) === false ? [] : get_option( 'totallycriticalcss_custom_dequeue' );
 		$custom_dequeue[$form_handle] = $form_url;
 		
 		update_option( 'totallycriticalcss_custom_dequeue', $custom_dequeue );
@@ -121,7 +115,7 @@ class Setup {
 		
 		$form_handle = $_POST[ 'form_handle' ];
 		
-		$custom_dequeue = get_option( 'totallycriticalcss_custom_dequeue' );
+		$custom_dequeue = get_option( 'totallycriticalcss_custom_dequeue' ) === false ? [] : get_option( 'totallycriticalcss_custom_dequeue' );
 		unset( $custom_dequeue[$form_handle] );
 		
 		update_option( 'totallycriticalcss_custom_dequeue', $custom_dequeue );
@@ -134,25 +128,25 @@ class Setup {
 		
 		$form_url = $_POST[ 'form_url' ];
 		
-		$custom_route = get_option( 'totallycriticalcss_custom_routes' );
-		$custom_route[] = $form_url;
+		$custom_routes = get_option( 'totallycriticalcss_custom_routes' ) === false ? [] : get_option( 'totallycriticalcss_custom_routes' );
+		$custom_routes[] = $form_url;
 		
-		update_option( 'totallycriticalcss_custom_routes', $custom_route );
+		update_option( 'totallycriticalcss_custom_routes', $custom_routes );
 		
-		wp_send_json_success( $custom_route );
+		wp_send_json_success( $custom_routes );
 		
 	}
 	
 	public function totallycriticalcss_delete_custum_route() {
 		
-		$url_index = $_POST[ 'url_index' ];
+		$form_url = $_POST[ 'form_url' ];
 		
-		$custom_route = get_option( 'totallycriticalcss_custom_routes' );
-		unset( $custom_route[$url_index] );
+		$custom_routes = get_option( 'totallycriticalcss_custom_routes' ) === false ? [] : get_option( 'totallycriticalcss_custom_routes' );
+		array_splice( $custom_routes, array_search( $form_url, $custom_routes ), 1) ;
 		
-		update_option( 'totallycriticalcss_custom_routes', $custom_route );
+		update_option( 'totallycriticalcss_custom_routes', $custom_routes );
 		
-		wp_send_json_success( $custom_route );
+		wp_send_json_success( $custom_routes );
 		
 	}
 

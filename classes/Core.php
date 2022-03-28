@@ -22,8 +22,14 @@ class Critical {
 	* TotallyCriticalCSS Function
 	*/
 	public function get_all_stylesheets() {
+		$totallycriticalcss = isset( $_GET['totallycriticalcss'] ) ? $_GET['totallycriticalcss'] : false;
+		if ( is_user_logged_in() ) {
+			//return;
+		}
+		if ( $totallycriticalcss == 'preview' ) {
+			return;
+		}
 		$totallycriticalcss_selected_styles = get_option( 'totallycriticalcss_selected_styles' );
-		
 		if( $totallycriticalcss_selected_styles ) {
 			$css = [];
 			foreach ( $totallycriticalcss_selected_styles as $style) {

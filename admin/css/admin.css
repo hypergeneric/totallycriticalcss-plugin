@@ -155,6 +155,23 @@ img {
 
 
 
+#tccssWrapper .ajax-group {
+	position: relative;
+}
+	#tccssWrapper .ajax-group .screen {
+		display: none;
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background-position: center center;
+		background-repeat: no-repeat;
+		background-color: rgba( 255, 255, 255, 0.5 );
+	}
+	#tccssWrapper .ajax-group.loading .screen {
+		display: block;
+	}
 
 #tccssWrapper table {
 	border-collapse: collapse;
@@ -164,6 +181,9 @@ img {
 	width: 100%;
 	margin-bottom: 16px;
 }
+	#tccssWrapper table .seed {
+		display: none;
+	}
 	#tccssWrapper table td, #tccssWrapper table th {
 		padding: 10px;
 		border: 1px solid #dee2e6;
@@ -185,10 +205,7 @@ img {
 	#tccssWrapper table td.actions {
 		width: 72px;
 	}
-		#tccssWrapper table .route-delete span  {
-			display: block;
-		}
-		#tccssWrapper table .dequeue-delete span  {
+		#tccssWrapper table .button-delete span  {
 			display: block;
 		}
 
@@ -207,6 +224,6 @@ img {
 		margin-bottom: 16px;
 	}
 	
-	#tccssWrapper #show-custum-dequeue {
+	#tccssWrapper #custom_dequeue {
 		margin-bottom: 32px;
 	}

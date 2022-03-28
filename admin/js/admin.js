@@ -1,43 +1,47 @@
 ( function ( $, window, document ) {
 	'use strict';
 	$( document ).ready( function () {
+		
 		var ajaxURL = totallycriticalcss_obj.ajax_url;
+		var tccssadmin = $( '#tccssWrapper' );
 		
-		$( '#show-custum-route' ).click( function( e ) {
-			$( '#custum-dequeue-add-route' ).show();
+		// common to all
+		
+		tccssadmin.find( '.adder-form-show' ).click( function( e ) {
+			$( this ).prev().show();
 			$( this ).hide();
 			e.preventDefault();
 			return false;
 		} );
 		
-		$( '#cancel-custom-route' ).click( function( e ) {
-			$( '#show-custum-route' ).show();
-			$( '#custum-dequeue-add-route' ).hide();
+		tccssadmin.find( '.adder-form-cancel' ).click( function( e ) {
+			$( this ).parent().next().show();
+			$( this ).parent().hide();
 			e.preventDefault();
 			return false;
 		} );
 		
-		$( '#show-custum-dequeue' ).click( function( e ) {
-			$( '#custum-dequeue-add-form' ).show();
-			$( this ).hide();
-			e.preventDefault();
-			return false;
-		} );
+		// custom dequeue functions / actions
 		
-		$( '#cancel-custum-dequeue' ).click( function( e ) {
-			$( '#show-custum-dequeue' ).show();
-			$( '#custum-dequeue-add-form' ).hide();
-			e.preventDefault();
-			return false;
-		} );
+		function createCustomDequeueTable ( data ) {
+			tccssadmin.find( '#custom_dequeue tbody tr:not( .seed )' ).remove();
+			var seed = tccssadmin.find( '#custom_dequeue tbody tr.seed' );
+			for ( var handle in data ) {
+				if ( data.hasOwnProperty( handle ) ) {
+					var url = data[ handle ];
+					var clone = seed.clone( true );
+					clone.removeClass( 'seed' );
+					clone.find( '.handle' ).text( '( ' + handle + ' )' );
+					clone.find( '.url' ).text(url );
+					clone.find( '.button-delete' ).attr( 'data-handle', handle );
+					clone.find( '.button-delete' ).data( 'handle', handle );
+					tccssadmin.find( '#custom_dequeue tbody' ).append( clone );
+				}
+			}
+		}
 		
-		$( '#styles-toggle-all' ).click( function( e ) {
-			$( '#admin-view-form input[name="sheets"]' ).each( function () { this.checked = !this.checked; } );
-			e.preventDefault();
-			return false;
-		} );
-		
-		$( '#add-custum-dequeue' ).click( function( e ) {
+		tccssadmin.find( '#add-form-custum-dequeue' ).click( function( e ) {
+			$( '#custom_dequeue' ).addClass( 'loading' );
 			$.ajax( {
 				method: 'POST',
 				url: ajaxURL,
@@ -47,30 +51,18 @@
 					form_url: $( '#add-form-url' ).val(),
 				},
 				success: function( response ) {
-					console.log(response);
+					$( '#custom_dequeue' ).removeClass( 'loading' );
+					tccssadmin.find( '.adder-form input' ).val( '' );
+					tccssadmin.find( '.adder-form-cancel' ).click();
+					createCustomDequeueTable( response.data );
 				}
 			} );
 			e.preventDefault();
 			return false;
 		} );
 		
-		$( '#add-custum-route' ).click( function( e ) {
-			$.ajax( {
-				method: 'POST',
-				url: ajaxURL,
-				data:{
-					action: 'totallycriticalcss_add_custum_route',
-					form_url: $( '#add-route-url' ).val(),
-				},
-				success: function( response ) {
-					console.log(response);
-				}
-			} );
-			e.preventDefault();
-			return false;
-		} );
-		
-		$( '.dequeue-delete' ).click( function( e ) {
+		tccssadmin.find( '.custum-dequeue-delete' ).click( function( e ) {
+			$( '#custom_dequeue' ).addClass( 'loading' );
 			$.ajax( {
 				method: 'POST',
 				url: ajaxURL,
@@ -79,6 +71,44 @@
 					form_handle: $( this ).data( 'handle' ),
 				},
 				success: function( response ) {
+					$( '#custom_dequeue' ).removeClass( 'loading' );
+					createCustomDequeueTable( response.data );
+				}
+			} );
+			e.preventDefault();
+			return false;
+		} );
+		
+		// custom routes functions / actions
+		
+		function createCustomRouteTable ( data ) {
+			tccssadmin.find( '#custom_routes tbody tr:not( .seed )' ).remove();
+			var seed = tccssadmin.find( '#custom_routes tbody tr.seed' );
+			for ( var i = 0; i < data.length; i++ ) {
+				var url = data[ i ];
+				var clone = seed.clone( true );
+				clone.removeClass( 'seed' );
+				clone.find( '.route' ).text( url );
+				clone.find( '.button-delete' ).attr( 'data-url', url );
+				clone.find( '.button-delete' ).data( 'url', url );
+				tccssadmin.find( '#custom_routes tbody' ).append( clone );
+			}
+		}
+		
+		tccssadmin.find( '#add-form-custum-route' ).click( function( e ) {
+			$( '#custom_routes' ).addClass( 'loading' );
+			$.ajax( {
+				method: 'POST',
+				url: ajaxURL,
+				data:{
+					action: 'totallycriticalcss_add_custum_route',
+					form_url: $( '#add-route-url' ).val(),
+				},
+				success: function( response ) {
+					$( '#custom_routes' ).removeClass( 'loading' );
+					tccssadmin.find( '.adder-form-cancel' ).click();
+					tccssadmin.find( '.adder-form input' ).val( '' );
+					createCustomRouteTable( response.data );
 					console.log(response);
 				}
 			} );
@@ -86,37 +116,43 @@
 			return false;
 		} );
 		
-		$( '.route-delete' ).click( function( e ) {
+		tccssadmin.find( '.custom-route-delete' ).click( function( e ) {
+			$( '#custom_routes' ).addClass( 'loading' );
 			$.ajax( {
 				method: 'POST',
 				url: ajaxURL,
 				data:{
 					action: 'totallycriticalcss_delete_custum_route',
-					url_index: $( this ).data( 'index' ),
+					form_url: $( this ).data( 'url' ),
 				},
 				success: function( response ) {
+					$( '#custom_routes' ).removeClass( 'loading' );
+					createCustomRouteTable( response.data );
 					console.log(response);
 				}
 			} );
 			e.preventDefault();
 			return false;
 		} );
-
+		
 		$( '#admin-view-form' ).submit( function( e ) {
 			e.preventDefault();
 
 			var apiKey = $( this ).find( '#apiKey' ).val();
 			var customTheme = $( this ).find( '#customTheme' ).val();
 			var customStylesheet = $( this ).find( '#customStylesheet' ).val();
-			var selectedStyles = [];
+			
+			var selectedStyles = {};
 			$( '#admin-view-form input[name="sheets"]:checked' ).each( function() {
-				selectedStyles.push( { name: $( this ).val(), url: $( this ).data( 'url' ) } );
+				var handle = $( this ).val();
+				var url    = $( this ).data( 'url' );
+				selectedStyles[handle] = url;
 			} );
+			
 			var my_post_types = [];
 			$( '#admin-view-form input[name="my_post_types"]:checked' ).each( function() {
 				my_post_types.push( $( this ).val() );
 			} );
-			console.log(my_post_types);
 
 			$.ajax( {
 				method: 'POST',
@@ -133,6 +169,12 @@
 					location.reload();
 				}
 			} );
+		} );
+		
+		$( '#styles-toggle-all' ).click( function( e ) {
+			$( '#admin-view-form input[name="sheets"]' ).each( function () { this.checked = !this.checked; } );
+			e.preventDefault();
+			return false;
 		} );
 
 		
