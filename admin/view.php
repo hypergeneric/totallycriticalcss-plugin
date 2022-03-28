@@ -34,15 +34,15 @@ if ( is_array( $response ) && ! is_wp_error( $response ) ) {
 		<section id="tccssWrapper">
 			
 			<ul class="tabs">
-				<li class="active">Settings</li>
-				<li class="">Stylesheets</li>
-				<li class="">Custom Post Types</li>
-				<li class="">Routes</li>
+				<li data-tab="settings">Settings</li>
+				<li data-tab="stylesheets">Stylesheets</li>
+				<li data-tab="cpt">Custom Post Types</li>
+				<li data-tab="routes">Routes</li>
 			</ul>
 
 			<ul class="tab__content">
 				
-				<li class="active">
+				<li id="tab-settings">
 					<div class="content__wrapper">
 						
 						<div class="field api-key">
@@ -60,7 +60,7 @@ if ( is_array( $response ) && ! is_wp_error( $response ) ) {
 					</div>
 				</li>
 				
-				<li>
+				<li id="tab-stylesheets">
 					<div class="content__wrapper">
 						
 						<div id="custom_dequeue" class="ajax-group">
@@ -175,7 +175,8 @@ if ( is_array( $response ) && ! is_wp_error( $response ) ) {
 						
 					</div>
 				</li>
-				<li>
+				
+				<li id="tab-cpt">
 					<div class="content__wrapper">
 						
 						<div id="selected_cpt" class="ajax-group">
@@ -217,7 +218,8 @@ if ( is_array( $response ) && ! is_wp_error( $response ) ) {
 						
 					</div>
 				</li>
-				<li>
+				
+				<li id="tab-routes">
 					<div class="content__wrapper">
 						
 						<div id="custom_routes" class="ajax-group">

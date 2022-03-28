@@ -17,7 +17,10 @@ class Queue {
 	* Dequeue/ enqueue selected styles
 	*/
 	public function totallycriticalcss_selected_style_dequeueing() {
-		return;
+		$totallycriticalcss = isset( $_GET['totallycriticalcss'] ) ? $_GET['totallycriticalcss'] : false;
+		if ( $totallycriticalcss == 'preview' ) {
+			return;
+		}
 		$selected_stylesheet_dequeue = get_option( 'totallycriticalcss_selected_styles' );
 		if ( $selected_stylesheet_dequeue ) {
 			foreach ( $selected_stylesheet_dequeue as $handle => $url ) {

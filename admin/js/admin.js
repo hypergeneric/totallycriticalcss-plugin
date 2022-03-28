@@ -135,6 +135,8 @@
 			return false;
 		} );
 		
+		// everything else
+		
 		$( '#admin-view-form' ).submit( function( e ) {
 			e.preventDefault();
 
@@ -176,51 +178,29 @@
 			e.preventDefault();
 			return false;
 		} );
-
 		
-
-
-		// Tabs
-		var clickedTab      = $("#tccssWrapper .tabs > .active");
-		var tabWrapper      = $("#tccssWrapper .tab__content");
-		var activeTab       = tabWrapper.find(".active");
-		var activeTabHeight = activeTab.outerHeight();
+		// tabs
+		var tabs         = tccssadmin.find( '.tabs > li' );
+		var tabs_content = tccssadmin.find( '.tab__content > li' );
+		var page_hash    = window.location.hash == '' ? tabs.first().data( 'tab' ) : window.location.hash.substr( 1 );
 		
-		activeTab.show();
+		function setCurrentTab ( hash ) {
+			tabs.each( function () {
+				if ( $( this ).data( 'tab' ) == hash ) {
+					tabs.removeClass( 'active' );
+					$( this ).addClass( 'active' );
+					tabs_content.removeClass( 'active' );
+					$( '#tab-' + hash ).addClass( 'active' );
+				}
+			} );
+			window.location.hash = hash;
+		}
 		
-		tabWrapper.height(activeTabHeight);
+		tabs.click( function( e ) {
+			setCurrentTab( $( this ).data( 'tab' ) );
+		} );
 		
-		$("#tccssWrapper .tabs > li").on("click", function() {
-			
-			$("#tccssWrapper .tabs > li").removeClass("active");
-			
-			$(this).addClass("active");
-			
-			clickedTab = $("#tccssWrapper .tabs .active");
-			
-			activeTab.fadeOut(150, function() {
-				
-				$("#tccssWrapper .tab__content > li").removeClass("active");
-				
-				var clickedTabIndex = clickedTab.index();
-
-				$("#tccssWrapper .tab__content > li").eq(clickedTabIndex).addClass("active");
-				
-				activeTab = $("#tccssWrapper .tab__content > .active");
-				
-				activeTabHeight = activeTab.outerHeight();
-				
-				tabWrapper.stop().delay(30).animate({
-					height: activeTabHeight
-				}, 200, function() {
-					
-					// Fade in active tab
-					activeTab.delay(30).fadeIn(150);
-					
-				});
-			});
-		});
-		
+		setCurrentTab( page_hash );
 	
 	});
 } ( jQuery, window, document ) );
