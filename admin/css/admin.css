@@ -108,7 +108,11 @@ img {
 		color: #222;
 		margin: 0;
 	}
-	#tccssWrapper .tabs > li:before {
+	#tccssWrapper .tabs > li.disabled {
+		opacity: .25;
+		cursor: default;
+	}
+	#tccssWrapper .tabs > li:not( .disabled ):before {
 		z-index: -1;
 		position: absolute;
 		content: "";
@@ -122,7 +126,7 @@ img {
 		transition-duration: 0.15s;
 		border-radius: 5px 5px 0 0;
 	}
-	#tccssWrapper .tabs > li:hover:before {
+	#tccssWrapper .tabs > li:not( .disabled ):hover:before {
 		-webkit-transform: translateY(70%);
 		transform: translateY(70%);
 	}

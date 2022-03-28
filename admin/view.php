@@ -14,19 +14,11 @@ $totallycriticalcss_selected_styles  = get_option( 'totallycriticalcss_selected_
 // get a list of custom post types
 $my_post_types = get_post_types();
 
-// pull all the stylesheets from the homepage
-$sheets = [];
-$response = wp_remote_get( get_home_url() . "/?totallycriticalcss=preview" );
-if ( is_array( $response ) && ! is_wp_error( $response ) ) {
-	$body = $response[ 'body' ]; // use the content
-	$doc  = new DOMDocument();
-	$doc->loadHTML( $body, LIBXML_NOWARNING | LIBXML_NOERROR );
-	$domcss = $doc->getElementsByTagName( 'link' );
-	foreach ( $domcss as $links ) {
-		if ( strtolower( $links->getAttribute( 'rel' ) ) == "stylesheet" ) {
-			$sheets[] = $links;
-		}
-	}
+if ( $totallycriticalcss_simplemode == false ) {
+	
+	// pull all the stylesheets from the homepage
+	$sheetlist = TotallyCriticalCSS::get_current_sheetlist();
+	
 }
 
 ?>
@@ -40,9 +32,9 @@ if ( is_array( $response ) && ! is_wp_error( $response ) ) {
 			
 			<ul class="tabs">
 				<li data-tab="settings">Settings</li>
-				<li data-tab="stylesheets">Stylesheets</li>
-				<li data-tab="cpt">Custom Post Types</li>
-				<li data-tab="routes">Routes</li>
+				<li class="<?php echo $totallycriticalcss_simplemode == true ? 'disabled' : ''; ?>" data-tab="stylesheets">Stylesheets</li>
+				<li class="<?php echo $totallycriticalcss_simplemode == true ? 'disabled' : ''; ?>" data-tab="cpt">Custom Post Types</li>
+				<li class="<?php echo $totallycriticalcss_simplemode == true ? 'disabled' : ''; ?>" data-tab="routes">Routes</li>
 			</ul>
 
 			<ul class="tab__content">
@@ -65,7 +57,7 @@ if ( is_array( $response ) && ! is_wp_error( $response ) ) {
 							<div class="label">
 								<label for="simplemode">Simple Mode</label>
 							</div>
-							<div class="desc">Just set it and forget it.  Totally Critical CSS will work passively in the background on all pages.  If you look at the page source, you may not see the generated code -- use an Incognito browser to check after any page saves.  Totally Critical CSS will mostly be invisible.</div>
+							<div class="desc">Just set it and forget it.  Totally Critical CSS will work passively in the background on all pages.  We'll automatically dequeue all styles to the page footer and process Critical CSS in the head.<br />If you look at the page source, you may not see the generated code -- use an Incognito browser to check after any page saves.  Totally Critical CSS will mostly be invisible.</div>
 						</div>
 						
 						<div class="checkbox">
@@ -111,6 +103,8 @@ if ( is_array( $response ) && ! is_wp_error( $response ) ) {
 						
 					</div>
 				</li>
+				
+				<?php if ( $totallycriticalcss_simplemode == false ) { ?>
 				
 				<li id="tab-stylesheets">
 					<div class="content__wrapper">
@@ -195,24 +189,19 @@ if ( is_array( $response ) && ! is_wp_error( $response ) ) {
 									</th>
 								</thead>
 								<tbody>
-								<?php foreach ( $sheets as $sheet ) { 
-									$sheetid = $sheet->getAttribute('id');
-									$sheetid_bits = explode( '-', $sheetid );
-									array_pop( $sheetid_bits );
-									$sheetid_clean = implode( '-', $sheetid_bits );
-									?>
+								<?php foreach ( $sheetlist as $handle => $url ) { ?>
 									<tr>
 										<td class="check">
 											<input type="checkbox" 
-											name="sheets" id="<?php echo $sheetid_clean; ?>" 
-											value="<?php echo $sheetid_clean; ?>" 
-											data-url="<?php echo $sheet->getAttribute( 'href' ); ?>" 
-											<?php echo isset( $totallycriticalcss_selected_styles[$sheetid_clean] ) ? 'checked="checked"' : ''; ?> />
+											name="sheets" id="<?php echo $handle; ?>" 
+											value="<?php echo $handle; ?>" 
+											data-url="<?php echo $url; ?>" 
+											<?php echo isset( $totallycriticalcss_selected_styles[$handle] ) ? 'checked="checked"' : ''; ?> />
 										</td>
 										<td>
-											<label for="<?php echo $sheetid_clean; ?>">
-												<span class='handle'>( <?php echo $sheetid_clean; ?> )</span>
-												<span class="url"><?php echo $sheet->getAttribute('href'); ?></span>
+											<label for="<?php echo $handle; ?>">
+												<span class='handle'>( <?php echo $handle; ?> )</span>
+												<span class="url"><?php echo $url; ?></span>
 											</label>
 										</td>
 									</tr>
@@ -335,6 +324,8 @@ if ( is_array( $response ) && ! is_wp_error( $response ) ) {
 						
 					</div>
 				</li>
+				
+				<?php } ?>
 				
 			</ul>
 		</section>

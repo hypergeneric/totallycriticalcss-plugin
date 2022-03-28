@@ -75,13 +75,40 @@ if ( ! class_exists( 'TotallyCriticalCSS' ) ) {
 
 		}
 		
+		public static function get_current_sheetlist() {
+
+			$sheets = [];
+			$response = wp_remote_get( get_home_url() . "/?totallycriticalcss=preview" );
+			if ( is_array( $response ) && ! is_wp_error( $response ) ) {
+				$body = $response[ 'body' ];
+				$doc  = new DOMDocument();
+				$doc->loadHTML( $body, LIBXML_NOWARNING | LIBXML_NOERROR );
+				$domcss = $doc->getElementsByTagName( 'link' );
+				foreach ( $domcss as $links ) {
+					if ( strtolower( $links->getAttribute( 'rel' ) ) == "stylesheet" ) {
+						$sheets[] = $links;
+					}
+				}
+			}
+			$result = [];
+			foreach ( $sheets as $sheet ) { 
+				$sheetid = $sheet->getAttribute('id');
+				$sheetid_bits = explode( '-', $sheetid );
+				array_pop( $sheetid_bits );
+				$sheetid_clean = implode( '-', $sheetid_bits );
+				$result[$sheetid_clean] = $sheet->getAttribute( 'href' );
+			}
+			return $result;
+
+		}
+		
 		public static function install() {
 
 			update_option( 'totallycriticalcss_simplemode', true );
 			update_option( 'totallycriticalcss_show_metaboxes', true );
 			update_option( 'totallycriticalcss_always_immediate', false );
 			update_option( 'totallycriticalcss_adminmode', false );
-			update_option( 'totallycriticalcss_selected_cpt', [ 'page', 'post' ] );
+			update_option( 'totallycriticalcss_selected_cpt', [ 'page', 'post', 'product' ] );
 
 		}
 

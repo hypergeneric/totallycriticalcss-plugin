@@ -207,6 +207,9 @@
 		}
 		
 		tabs.click( function( e ) {
+			if ( $( this ).hasClass( 'disabled' ) ) {
+				return;
+			}
 			setCurrentTab( $( this ).data( 'tab' ) );
 		} );
 		
