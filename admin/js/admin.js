@@ -5,6 +5,10 @@
 		var ajaxURL = totallycriticalcss_obj.ajax_url;
 		var tccssadmin = $( '#tccssWrapper' );
 		
+		if ( tccssadmin.length == 0 ) {
+			return;
+		}
+		
 		// common to all
 		
 		tccssadmin.find( '.adder-form-show' ).click( function( e ) {
@@ -138,22 +142,25 @@
 		// everything else
 		
 		$( '#admin-view-form' ).submit( function( e ) {
+			
 			e.preventDefault();
 
-			var apiKey = $( this ).find( '#apiKey' ).val();
-			var customTheme = $( this ).find( '#customTheme' ).val();
-			var customStylesheet = $( this ).find( '#customStylesheet' ).val();
+			var api_key          = $( this ).find( '#api_key' ).val();
+			var simplemode       = $( this ).find( '#simplemode' ).is( ':checked' );
+			var show_metaboxes   = $( this ).find( '#show_metaboxes' ).is( ':checked' );
+			var always_immediate = $( this ).find( '#always_immediate' ).is( ':checked' );
+			var adminmode        = $( this ).find( '#adminmode' ).is( ':checked' );
 			
-			var selectedStyles = {};
+			var selected_styles = {};
 			$( '#admin-view-form input[name="sheets"]:checked' ).each( function() {
 				var handle = $( this ).val();
 				var url    = $( this ).data( 'url' );
-				selectedStyles[handle] = url;
+				selected_styles[handle] = url;
 			} );
 			
-			var my_post_types = [];
-			$( '#admin-view-form input[name="my_post_types"]:checked' ).each( function() {
-				my_post_types.push( $( this ).val() );
+			var selected_cpt = [];
+			$( '#admin-view-form input[name="selected_cpt"]:checked' ).each( function() {
+				selected_cpt.push( $( this ).val() );
 			} );
 
 			$.ajax( {
@@ -161,16 +168,19 @@
 				url: ajaxURL,
 				data:{
 					action: 'totallycriticalcss_save_admin_page',
-					api_key: apiKey,
-					custom_theme: customTheme,
-					custom_stylesheet: customStylesheet,
-					selected_styles: selectedStyles,
-					my_post_types: my_post_types
+					api_key: api_key,
+					simplemode: simplemode,
+					show_metaboxes: show_metaboxes,
+					always_immediate: always_immediate,
+					adminmode: adminmode,
+					selected_styles: selected_styles,
+					selected_cpt: selected_cpt
 				},
 				success: function( response ) {
 					location.reload();
 				}
 			} );
+			
 		} );
 		
 		$( '#styles-toggle-all' ).click( function( e ) {

@@ -67,32 +67,19 @@ class Setup {
 	*/
 	public function totallycriticalcss_save_admin_page() {
 		
-		$api_key = $_POST[ 'api_key' ];
-		if( $api_key ) {
-			update_option( 'totallycriticalcss_api_key', $api_key );
-		} else {
-			delete_option( 'totallycriticalcss_api_key' );
-		}
-
-		$custom_stylesheet = $_POST[ 'custom_stylesheet' ];
-		if( $custom_stylesheet ) {
-			update_option( 'totallycriticalcss_custom_stylesheet_location', $custom_stylesheet );
-		} else {
-			delete_option( 'totallycriticalcss_custom_stylesheet_location' );
-		}
-
-		$selected_styles = $_POST[ 'selected_styles' ];
-		if( $selected_styles ) {
-			update_option( 'totallycriticalcss_selected_styles', $selected_styles );
-		} else {
-			delete_option( 'totallycriticalcss_selected_styles' );
+		$literals = [ 'api_key', 'selected_styles', 'selected_cpt' ];
+		$bools = [ 'simplemode', 'show_metaboxes', 'always_immediate', 'adminmode' ];
+		
+		foreach ( $literals as $key ) {
+			if ( isset( $_POST[ $key ] ) ) {
+				update_option( 'totallycriticalcss_' . $key, $_POST[ $key ] );
+			}
 		}
 		
-		$my_post_types = $_POST[ 'my_post_types' ];
-		if( $my_post_types ) {
-			update_option( 'totallycriticalcss_selected_cpt', $my_post_types );
-		} else {
-			delete_option( 'totallycriticalcss_selected_cpt' );
+		foreach ( $bools as $key ) {
+			if ( isset( $_POST[ $key ] ) ) {
+				update_option( 'totallycriticalcss_' . $key, $_POST[ $key ] == 'true' );
+			}
 		}
 		
 	}

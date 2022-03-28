@@ -49,6 +49,44 @@ img {
 	color: #46a1de;
 	transition-duration: 0.2s;
 }
+#tccssWrapper .tab__content .field {
+}
+	#tccssWrapper .tab__content .field input {
+		border: 1px #ddd solid;
+		border-radius: 0;
+		background: #fff;
+		box-shadow: 3px 3px 0px 0px rgba(0,0,0,0.03);
+	}
+#tccssWrapper .tab__content .checkbox {
+	display: flex;
+	flex-wrap: wrap;
+	margin-bottom: 30px;
+}
+	#tccssWrapper .tab__content .checkbox .check {
+		width: 42px;
+		border: 1px #ddd solid;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: #fff;
+		box-shadow: 3px 3px 0px 0px rgba(0,0,0,0.03);
+	}
+		#tccssWrapper .tab__content .checkbox .check input {
+			margin: 0;
+		}
+	#tccssWrapper .tab__content .checkbox .label {
+		border: 1px #ddd solid;
+		width: calc( 100% - 42px);
+		border-left: none;
+		font-size: large;
+		font-weight: bold;
+		padding: 10px 15px;
+		background: #fff;
+		box-shadow: 3px 3px 0px 0px rgba(0,0,0,0.03);
+	}
+	#tccssWrapper .tab__content .checkbox .desc {
+		margin-top: 7px;
+	}
 
 
 
