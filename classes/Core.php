@@ -46,6 +46,73 @@ class Critical {
 		
 	}
 	
+	public function get_totallycriticalcssarchive( $route ) {
+		
+		write_log( 'get_totallycriticalcss: ' . $route );
+		
+		$totallycriticalcss_simplemode = get_option( 'totallycriticalcss_simplemode' );
+		$custom_routes = get_option( 'totallycriticalcss_custom_routes' );
+		
+		// should we process this route?
+		$process_route = $totallycriticalcss_simplemode;
+		if ( $process_route == false && $custom_routes ) {
+			foreach ( $custom_routes as $custom_route ) {
+				if ( strtolower( trim( $custom_route, '/' ) ) == strtolower( trim( $route, '/' ) ) ) {
+					$process_route = true;
+				}
+			}
+		}
+		if ( $process_route == false ) {
+			return;
+		}
+		
+		$invalidate = \TotallyCriticalCSS::get_invalidate();
+		if ( $invalidate == 'loading' ) {
+			return;
+		}
+		
+		// clear out any invalidation flag
+		write_log( 'get_totallycriticalcss: ' . $route . ' loading' );
+		\TotallyCriticalCSS::set_invalidate( 'loading' );
+		
+		// get all the styles and concatenate
+		$stylesheets = $this->get_all_stylesheets();
+		$css = [];
+		foreach ( $stylesheets as $handle => $url ) {
+			$css[] = $url;
+		}
+		$css = implode( '::::', $css );
+		$css = str_replace( 'totallycritical.lndo.site', 'totallycriticalcss.com', $css );
+		
+		// get the post url
+		$url = home_url( $route );
+		$url = str_replace( 'totallycritical.lndo.site', 'totallycriticalcss.com', $url );
+		
+		// generate the url
+		$uri = 'http://api.totallycriticalcss.com/v1/';
+		$query = [
+			'u' => $url,
+			'c' => $css,
+			'k' => get_option( 'totallycriticalcss_api_key' ),
+			't' => md5( uniqid( '', true ) ),
+		];
+
+		// pull the critical and save it
+		$response      = wp_remote_get( $uri . "?" . http_build_query( $query ), [ 'timeout' => 30 ] );
+		$response_data = ! is_wp_error( $response ) ? $response['body'] : '{"success":false,"message":"' . addslashes( $response->get_error_message() ) . '"}';
+		\TotallyCriticalCSS::set_data( json_decode( $response_data ) );
+		
+		// if it's simple mode, save the global checksum at this point in time to check in the future
+		if ( $totallycriticalcss_simplemode ) {
+			\TotallyCriticalCSS::set_checksum( get_transient( 'totallycriticalcss-sheetlist-checksum' ) );
+		}
+		
+		// clear out any invalidation flag
+		write_log( 'get_totallycriticalcss: ' . $route . ' loaded!' );
+		\TotallyCriticalCSS::set_invalidate( false );
+		
+	}
+	
 	public function get_totallycriticalcss( $id ) {
 		
 		write_log( 'get_totallycriticalcss: ' . $id );

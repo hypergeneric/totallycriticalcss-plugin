@@ -92,6 +92,8 @@ class Setup {
 			}
 		}
 		
+		\TotallyCriticalCSS::clear_tccss_data();
+		
 	}
 	
 	public function add_custum_dequeue() {
@@ -103,6 +105,7 @@ class Setup {
 		$custom_dequeue[$form_handle] = $form_url;
 		
 		update_option( 'totallycriticalcss_custom_dequeue', $custom_dequeue );
+		\TotallyCriticalCSS::clear_tccss_data();
 		
 		wp_send_json_success( $custom_dequeue );
 		
@@ -116,6 +119,7 @@ class Setup {
 		unset( $custom_dequeue[$form_handle] );
 		
 		update_option( 'totallycriticalcss_custom_dequeue', $custom_dequeue );
+		\TotallyCriticalCSS::clear_tccss_data();
 		
 		wp_send_json_success( $custom_dequeue );
 		

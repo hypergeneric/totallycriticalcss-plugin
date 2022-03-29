@@ -72,10 +72,101 @@ if ( ! class_exists( 'TotallyCriticalCSS' ) ) {
 
 		}
 		
-		public static function clear_tcss_data() {
+		public static function set_data( $value ) {
+			global $wp;
+			if ( is_archive() ) {
+				$route_data = get_option( 'totallycriticalcss_route_data' ) === false ? [] : get_option( 'totallycriticalcss_route_data' );
+				if ( ! isset( $route_data[$wp->request] ) ) {
+					$route_data[$wp->request] = [];
+				}
+				$route_data[$wp->request]['data'] = $value;
+				update_option( 'totallycriticalcss_route_data', $route_data, false );
+			} else {
+				update_post_meta( get_the_ID(), 'totallycriticalcss', $value );
+			}
+		}
+		
+		public static function get_data() {
+			global $wp;
+			if ( is_archive() ) {
+				$route_data = get_option( 'totallycriticalcss_route_data' ) === false ? [] : get_option( 'totallycriticalcss_route_data' );
+				if ( isset( $route_data[$wp->request] ) ) {
+					if ( isset( $route_data[$wp->request]['data'] ) ) {
+						return $route_data[$wp->request]['data'];
+					}
+					return false;
+				}
+			} else {
+				return get_post_meta( get_the_ID(), 'totallycriticalcss', true );
+			}
+		}
+		
+		public static function set_checksum( $value ) {
+			global $wp;
+			if ( is_archive() ) {
+				$route_data = get_option( 'totallycriticalcss_route_data' ) === false ? [] : get_option( 'totallycriticalcss_route_data' );
+				if ( ! isset( $route_data[$wp->request] ) ) {
+					$route_data[$wp->request] = [];
+				}
+				$route_data[$wp->request]['checksum'] = $value;
+				update_option( 'totallycriticalcss_route_data', $route_data, false );
+			} else {
+				update_post_meta( get_the_ID(), 'totallycriticalcss', $value );
+			}
+		}
+		
+		public static function get_checksum() {
+			global $wp;
+			if ( is_archive() ) {
+				$route_data = get_option( 'totallycriticalcss_route_data' ) === false ? [] : get_option( 'totallycriticalcss_route_data' );
+				if ( isset( $route_data[$wp->request] ) ) {
+					if ( isset( $route_data[$wp->request]['checksum'] ) ) {
+						return $route_data[$wp->request]['checksum'];
+					}
+					return false;
+				}
+			} else {
+				return get_post_meta( get_the_ID(), 'totallycriticalcss_checksum', true );
+			}
+		}
+			
+		public static function set_invalidate( $value ) {
+			global $wp;
+			if ( is_archive() ) {
+				$route_data = get_option( 'totallycriticalcss_route_data' ) === false ? [] : get_option( 'totallycriticalcss_route_data' );
+				if ( ! isset( $route_data[$wp->request] ) ) {
+					$route_data[$wp->request] = [];
+				}
+				$route_data[$wp->request]['invalidate'] = $value;
+				update_option( 'totallycriticalcss_route_data', $route_data, false );
+			} else {
+				update_post_meta( get_the_ID(), 'totallycriticalcss_invalidate', $value );
+			}
+		}
+		
+		public static function get_invalidate() {
+			global $wp;
+			if ( is_archive() ) {
+				$route_data = get_option( 'totallycriticalcss_route_data' ) === false ? [] : get_option( 'totallycriticalcss_route_data' );
+				if ( isset( $route_data[$wp->request] ) ) {
+					if ( isset( $route_data[$wp->request]['invalidate'] ) ) {
+						return $route_data[$wp->request]['invalidate'];
+					}
+					return false;
+				}
+			} else {
+				return get_post_meta( get_the_ID(), 'totallycriticalcss_invalidate', true );
+			}
+		}
+		
+		public static function clear_tccss_data() {
 
 			global $wpdb;
 			$deleted_rows = $wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE `meta_key` = 'totallycriticalcss'" );
+			$deleted_rows = $wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE `meta_key` = 'totallycriticalcss_invalidate'" );
+			$deleted_rows = $wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE `meta_key` = 'totallycriticalcss_checksum'" );
+			
+			delete_option( 'totallycriticalcss_route_data' );
 
 		}
 		
@@ -128,7 +219,7 @@ if ( ! class_exists( 'TotallyCriticalCSS' ) ) {
 			delete_option( 'totallycriticalcss_custom_routes' );
 			delete_option( 'totallycriticalcss_selected_styles' );
 			
-			TotallyCriticalCSS::clear_tcss_data();
+			TotallyCriticalCSS::clear_tccss_data();
 
 		}
 

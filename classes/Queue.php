@@ -20,24 +20,30 @@ class Queue {
 	*/
 	public function check_invalidate() {
 		
-		write_log( 'totallycriticalcss_check_invalidate: ' . get_the_ID() );
+		global $wp;
+		write_log( 'totallycriticalcss_check_invalidate: ' . ( is_archive() ? $wp->request : get_the_ID() ) );
 		
 		$totallycriticalcss_simplemode = get_option( 'totallycriticalcss_simplemode' );
-		$totallycriticalcss_invalidate = get_post_meta( get_the_ID(), 'totallycriticalcss_invalidate', true );
-		$totallycriticalcss_checksum = get_post_meta( get_the_ID(), 'totallycriticalcss_checksum', true );
+		
+		$invalidate = \TotallyCriticalCSS::get_invalidate();
+		$checksum = \TotallyCriticalCSS::get_checksum();
 		
 		// if it's simple mode, always check to see if the checksum is different that the current one
 		// if so, run it again
 		if ( $totallycriticalcss_simplemode ) {
-			if ( $totallycriticalcss_checksum != get_transient( 'totallycriticalcss-sheetlist-checksum' ) ) {
-				$totallycriticalcss_invalidate = true;
+			if ( $checksum != get_transient( 'totallycriticalcss-sheetlist-checksum' ) ) {
+				$invalidate = true;
 			}
 		}
 		
 		// get the critical css
-		if ( $totallycriticalcss_invalidate ) {
+		if ( $invalidate ) {
 			$critical = new Critical();
-			$critical->get_totallycriticalcss( get_the_ID() );
+			if ( is_archive() ) {
+				$critical->get_totallycriticalcssarchive( $wp->request );
+			} else {
+				$critical->get_totallycriticalcss( get_the_ID() );
+			}
 		}
 		
 	}
@@ -54,9 +60,10 @@ class Queue {
 		}
 		
 		// only do the dequeueing / enqueuing if the data is live
-		$totallycriticalcss = get_post_meta( get_the_ID(), 'totallycriticalcss', true );
-		$totallycriticalcss_invalidate = get_post_meta( get_the_ID(), 'totallycriticalcss_invalidate', true );
-		if ( ! $totallycriticalcss || $totallycriticalcss->success !== true || $totallycriticalcss_invalidate == 'loading' ) {
+		$data = \TotallyCriticalCSS::get_data();
+		$invalidate = \TotallyCriticalCSS::get_invalidate();
+		
+		if ( ! $data || $data->success !== true || $invalidate == 'loading' ) {
 			return;
 		}
 		
@@ -85,14 +92,14 @@ class Queue {
 	*/
 	public function enqueue_critical() {
 		
-		$totallycriticalcss = get_post_meta( get_the_ID(), 'totallycriticalcss', true );
-		$totallycriticalcss_invalidate = get_post_meta( get_the_ID(), 'totallycriticalcss_invalidate', true );
+		$data = \TotallyCriticalCSS::get_data();
+		$invalidate = \TotallyCriticalCSS::get_invalidate();
 		
-		if ( ! $totallycriticalcss || $totallycriticalcss->success !== true || $totallycriticalcss_invalidate == 'loading' ) {
+		if ( ! $data || $data->success !== true || $invalidate == 'loading' ) {
 			return;
 		}
 		
-		echo '<!-- TotallyCriticalCSS --><style>' . $totallycriticalcss->data->css . '</style><!-- /TotallyCriticalCSS -->' . "\n";
+		echo '<!-- TotallyCriticalCSS --><style>' . $data->data->css . '</style><!-- /TotallyCriticalCSS -->' . "\n";
 		
 	}
 
