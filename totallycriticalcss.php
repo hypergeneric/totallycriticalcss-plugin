@@ -43,28 +43,32 @@ if ( ! class_exists( 'TotallyCriticalCSS' ) ) {
 	class TotallyCriticalCSS {
 
 		public function __construct() {
-
-			/******************************
-			********* SETUP ADMIN *********
-			******************************/
-
+			
 			if ( is_admin() ) {
+				
+				// load up our admin classes
 				$admin = new Setup();
-				$admin->totallycriticalcss_admin_setup();
-			}
-
-			/******************************
-			********* SETUP CORE *********
-			******************************/
-			if ( is_admin() ) {
 				$critical = new Critical();
-				$critical->totallycriticalcss_save_post_action();
+				$critical->init_hooks();
+				
+			} else {
+				
+				// only fire the queue once on front-facing pages only
+				add_action( 'template_redirect', function () {
+					if ( 
+						! is_singular() && 
+						! is_page() && 
+						! is_single() && 
+						! is_archive() && 
+						! is_home() &&
+						! is_front_page() 
+					) {
+						return false;
+					}
+					$queue = new Queue();
+				} );
+				
 			}
-
-			/******************************
-			********* SETUP QUEUE *********
-			******************************/
-			$queue = new Queue();
 
 		}
 		

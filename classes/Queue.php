@@ -9,15 +9,18 @@ use Classes\Core\Critical;
 class Queue {
 
 	public function __construct() {
-		add_action( 'wp', array( $this, 'totallycriticalcss_check_invalidate' ) );
-		add_action( 'wp_print_styles', array( $this, 'totallycriticalcss_selected_style_dequeueing' ), 100 );
-		add_action( 'wp_enqueue_scripts', array( $this, 'totallycriticalcss_style' ) );
+		write_log( 'Queue created' );
+		add_action( 'wp_print_styles', array( $this, 'check_invalidate' ), 99998 );
+		add_action( 'wp_print_styles', array( $this, 'dequeue_enqueue_handles' ), 99999 );
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_critical' ) );
 	}
 	
 	/**
 	* Dequeue/ enqueue selected styles
 	*/
-	public function totallycriticalcss_check_invalidate() {
+	public function check_invalidate() {
+		
+		write_log( 'totallycriticalcss_check_invalidate: ' . get_the_ID() );
 		
 		$totallycriticalcss_simplemode = get_option( 'totallycriticalcss_simplemode' );
 		$totallycriticalcss_invalidate = get_post_meta( get_the_ID(), 'totallycriticalcss_invalidate', true );
@@ -42,7 +45,7 @@ class Queue {
 	/**
 	* Dequeue/ enqueue selected styles
 	*/
-	public function totallycriticalcss_selected_style_dequeueing() {
+	public function dequeue_enqueue_handles() {
 		
 		// if the preview flag is enabled, ignore the switcheroo
 		$totallycriticalcss_preview = isset( $_GET['totallycriticalcss'] ) ? $_GET['totallycriticalcss'] : false;
@@ -52,8 +55,8 @@ class Queue {
 		
 		// only do the dequeueing / enqueuing if the data is live
 		$totallycriticalcss = get_post_meta( get_the_ID(), 'totallycriticalcss', true );
-		$totallycriticalcss = json_decode( $totallycriticalcss );
-		if ( ! $totallycriticalcss || $totallycriticalcss->success !== true ) {
+		$totallycriticalcss_invalidate = get_post_meta( get_the_ID(), 'totallycriticalcss_invalidate', true );
+		if ( ! $totallycriticalcss || $totallycriticalcss->success !== true || $totallycriticalcss_invalidate == 'loading' ) {
 			return;
 		}
 		
@@ -80,14 +83,17 @@ class Queue {
 	/**
 	* Enqueue TotallyCriticalCSS style
 	*/
-	public function totallycriticalcss_style() {
+	public function enqueue_critical() {
+		
 		$totallycriticalcss = get_post_meta( get_the_ID(), 'totallycriticalcss', true );
-		if ( $totallycriticalcss ) {
-			$totallycriticalcss = json_decode( $totallycriticalcss );
-			if ( $totallycriticalcss !== null && $totallycriticalcss->success === true ) {
-				echo '<!-- TotallyCriticalCSS --><style>' . $totallycriticalcss->data . '</style><!-- /TotallyCriticalCSS -->';
-			}
+		$totallycriticalcss_invalidate = get_post_meta( get_the_ID(), 'totallycriticalcss_invalidate', true );
+		
+		if ( ! $totallycriticalcss || $totallycriticalcss->success !== true || $totallycriticalcss_invalidate == 'loading' ) {
+			return;
 		}
+		
+		echo '<!-- TotallyCriticalCSS --><style>' . $totallycriticalcss->data->css . '</style><!-- /TotallyCriticalCSS -->' . "\n";
+		
 	}
 
 }
