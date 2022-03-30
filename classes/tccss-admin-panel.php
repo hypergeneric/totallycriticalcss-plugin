@@ -2,6 +2,12 @@
 
 class TCCSS_AdminPanel {
 	
+	/**
+	 * __construct
+	 * 
+	 * @param   void
+	 * @return  void
+	 */
 	public function __construct() {
 		if ( is_admin() ) {
 			add_action( 'wp_ajax_totallycriticalcss_save_admin_page', array( $this, 'save_admin_page' ) );
@@ -11,10 +17,15 @@ class TCCSS_AdminPanel {
 			add_action( 'wp_ajax_totallycriticalcss_delete_custum_route', array( $this, 'delete_custum_route' ) );
 		}
 	}
-
+	
 	/**
-	* Update Form Data when submitted
-	*/
+	 * save_admin_page
+	 *
+	 * Update Form Data when submitted
+	 *
+	 * @param   void
+	 * @return  void
+	 */
 	public function save_admin_page() {
 		
 		$literals = [ 'api_key', 'selected_styles', 'selected_cpt' ];
@@ -36,6 +47,14 @@ class TCCSS_AdminPanel {
 		
 	}
 	
+	/**
+	 * add_custum_dequeue
+	 *
+	 * Add custom dequeue.
+	 *
+	 * @param   void
+	 * @return  void
+	 */
 	public function add_custum_dequeue() {
 		
 		$form_handle = $_POST[ 'form_handle' ];
@@ -51,6 +70,14 @@ class TCCSS_AdminPanel {
 		
 	}
 	
+	/**
+	 * delete_custum_dequeue
+	 *
+	 * Delete custom dequeue.
+	 *
+	 * @param   void
+	 * @return  void
+	 */
 	public function delete_custum_dequeue() {
 		
 		$form_handle = $_POST[ 'form_handle' ];
@@ -65,6 +92,14 @@ class TCCSS_AdminPanel {
 		
 	}
 	
+	/**
+	 * add_custum_route
+	 *
+	 * Add custom route.
+	 *
+	 * @param   void
+	 * @return  void
+	 */
 	public function add_custum_route() {
 		
 		$form_url = $_POST[ 'form_url' ];
@@ -78,6 +113,14 @@ class TCCSS_AdminPanel {
 		
 	}
 	
+	/**
+	 * delete_custum_route
+	 *
+	 * Delete custom route.
+	 *
+	 * @param   void
+	 * @return  void
+	 */
 	public function delete_custum_route() {
 		
 		$form_url = $_POST[ 'form_url' ];

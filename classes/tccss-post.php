@@ -2,6 +2,12 @@
 
 class TCCSS_Post {
 	
+	/**
+	 * __construct
+	 * 
+	 * @param   void
+	 * @return  void
+	 */
 	public function __construct() {
 		if ( is_admin() ) {
 			add_action( 'save_post', array( $this, 'save_post' ), 10, 2 );
@@ -10,8 +16,13 @@ class TCCSS_Post {
 	}
 	
 	/**
-	* On Post Save Function
-	*/
+	 * save_post
+	 *
+	 * On Post Save Function
+	 *
+	 * @param   int $id The post id.
+	 * @return  int $id The post id.
+	 */
 	public function save_post( $id, $post ) {
 		
 		// do not save if this is an auto save routine
@@ -41,11 +52,18 @@ class TCCSS_Post {
 			tccss()->options()->setmeta( $id, 'invalidate', true );
 		}
 		
+		return $id;
+		
 	}
 	
 	/**
-	* Register metabox
-	*/
+	 * add_meta_boxes
+	 *
+	 * Register metabox
+	 *
+	 * @param   void
+	 * @return  void
+	 */
 	public function add_meta_boxes() {
 		$show_metaboxes = tccss()->options()->get( 'show_metaboxes' );
 		$simplemode     = tccss()->options()->get( 'simplemode' );
@@ -58,8 +76,13 @@ class TCCSS_Post {
 	}
 
 	/**
-	* Display metabox
-	*/
+	 * metabox_callback
+	 *
+	 * Display metabox
+	 *
+	 * @param   int $post The post object.
+	 * @return  void
+	 */
 	public function metabox_callback( $post ) {
 		$invalidate = tccss()->options()->getmeta( $post->ID, 'invalidate' );
 		if ( $invalidate ) {

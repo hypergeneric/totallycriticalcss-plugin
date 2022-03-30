@@ -2,12 +2,23 @@
 
 class TCCSS_Sheetlist {
 
+	/**
+	 * __construct
+	 * 
+	 * @param   void
+	 * @return  void
+	 */
 	public function __construct() {
 	}
 	
 	/**
-	* Get all the current stylesheets fro the homepage.
-	*/
+	 * get_current
+	 *
+	 * Get all the current stylesheets fro the homepage.
+	 *
+	 * @param   void
+	 * @return  array
+	 */
 	public function get_current() {
 
 		$sheets = [];
@@ -36,8 +47,13 @@ class TCCSS_Sheetlist {
 	}
 	
 	/**
-	* Get the stylesheets to enqueue/dequeue
-	*/
+	 * get_selected
+	 *
+	 * Get the stylesheets to enqueue/dequeue
+	 *
+	 * @param   void
+	 * @return  array
+	 */
 	public function get_selected() {
 		
 		$simplemode = tccss()->options()->get( 'simplemode' );
@@ -70,7 +86,9 @@ class TCCSS_Sheetlist {
 			}
 			
 		}
+		
 		return $css;
+		
 	}
 
 }

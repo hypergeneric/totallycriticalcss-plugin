@@ -2,6 +2,23 @@
 
 class TCCSS_Processor {
 	
+	/**
+	 * __construct
+	 * 
+	 * @param   void
+	 * @return  void
+	 */
+	public function __construct() {
+	}
+	
+	/**
+	 * validate
+	 *
+	 * Check for page validation and/or reprocessing.
+	 *
+	 * @param   void
+	 * @return  void
+	 */
 	public function validate() {
 		
 		global $wp;
@@ -29,6 +46,14 @@ class TCCSS_Processor {
 		
 	}
 	
+	/**
+	 * processed
+	 *
+	 * Determine if the page has critical css and is done loading.
+	 *
+	 * @param   void
+	 * @return  boolean if it's ready to go.
+	 */
 	public function processed() {
 		
 		// only do the dequeueing / enqueuing if the data is live
@@ -43,6 +68,14 @@ class TCCSS_Processor {
 		
 	}
 	
+	/**
+	 * process
+	 *
+	 * Start the critical css processing by determining the type of page.
+	 *
+	 * @param   void
+	 * @return  void
+	 */
 	public function process() {
 		global $wp;
 		if ( is_archive() ) {
@@ -52,6 +85,14 @@ class TCCSS_Processor {
 		}
 	}
 	
+	/**
+	 * set_checksum
+	 *
+	 * Set the checksum.
+	 *
+	 * @param   string $value The new checksum.
+	 * @return  void
+	 */
 	public function set_checksum( $value ) {
 		if ( is_archive() ) {
 			$this->set_route_value( 'checksum', $value );
@@ -60,6 +101,14 @@ class TCCSS_Processor {
 		}
 	}
 	
+	/**
+	 * get_checksum
+	 *
+	 * Return the checksum.
+	 *
+	 * @param   void
+	 * @return  string The saved checksum.
+	 */
 	public function get_checksum() {
 		if ( is_archive() ) {
 			return $this->get_route_value( 'checksum' );
@@ -67,7 +116,15 @@ class TCCSS_Processor {
 			return tccss()->options()->getmeta( get_the_ID(), 'checksum' );
 		}
 	}
-		
+	
+	/**
+	 * set_invalidate
+	 *
+	 * Set the validation token.
+	 *
+	 * @param   string $value The new validation token.
+	 * @return  void
+	 */
 	public function set_invalidate( $value ) {
 		if ( is_archive() ) {
 			$this->set_route_value( 'invalidate', $value );
@@ -76,6 +133,14 @@ class TCCSS_Processor {
 		}
 	}
 	
+	/**
+	 * get_invalidate
+	 *
+	 * Return the validation token.
+	 *
+	 * @param   void
+	 * @return  mixed The saved validation token.
+	 */
 	public function get_invalidate() {
 		if ( is_archive() ) {
 			return $this->get_route_value( 'invalidate' );
@@ -84,6 +149,14 @@ class TCCSS_Processor {
 		}
 	}
 	
+	/**
+	 * set_data
+	 *
+	 * Set the critical css data.
+	 *
+	 * @param   string $value The new critical css data.
+	 * @return  void
+	 */
 	public function set_data( $value ) {
 		if ( is_archive() ) {
 			$this->set_route_value( 'criticalcss', $value );
@@ -92,6 +165,14 @@ class TCCSS_Processor {
 		}
 	}
 	
+	/**
+	 * get_data
+	 *
+	 * Return the critical css data.
+	 *
+	 * @param   void
+	 * @return  object The saved critical css data.
+	 */
 	public function get_data() {
 		if ( is_archive() ) {
 			return $this->get_route_value( 'criticalcss' );
@@ -100,6 +181,15 @@ class TCCSS_Processor {
 		}
 	}
 	
+	/**
+	 * set_route_value
+	 *
+	 * Set data objects based on route / id.
+	 *
+	 * @param   string $name The data name.
+	 * @param   mixed $value The data value.
+	 * @return  void
+	 */
 	public function set_route_value( $name, $value ) {
 		global $wp;
 		$route_data = tccss()->options()->get( 'route_data', [] );
@@ -110,6 +200,14 @@ class TCCSS_Processor {
 		tccss()->options()->set( 'route_data', $route_data, false );
 	}
 	
+	/**
+	 * get_route_value
+	 *
+	 * Return data objects based on route / id.
+	 *
+	 * @param   string $name The data name.
+	 * @return  mixed The data value
+	 */
 	public function get_route_value( $name ) {
 		global $wp;
 		$route_data = tccss()->options()->get( 'route_data', [] );
@@ -121,6 +219,14 @@ class TCCSS_Processor {
 		}
 	}
 	
+	/**
+	 * get_critical_css
+	 *
+	 * Call the server API and return the result.
+	 *
+	 * @param   string $page_url The page url to generate critical css for.
+	 * @return  string The json string body from the response.
+	 */
 	public function get_critical_css( $page_url ) {
 		
 		// get all the styles and concatenate
@@ -152,6 +258,14 @@ class TCCSS_Processor {
 		
 	}
 	
+	/**
+	 * archive
+	 *
+	 * Process an archive page.
+	 *
+	 * @param   string $route The full url to generate.
+	 * @return  void
+	 */
 	public function archive( $route ) {
 		
 		tccss()->log( 'get_totallycriticalcss: ' . $route );
@@ -196,6 +310,14 @@ class TCCSS_Processor {
 		
 	}
 	
+	/**
+	 * single
+	 *
+	 * Process an single page.
+	 *
+	 * @param   string $id The post ID.
+	 * @return  void
+	 */
 	public function single( $id ) {
 		
 		tccss()->log( 'get_totallycriticalcss: ' . $id );

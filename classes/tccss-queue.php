@@ -2,6 +2,12 @@
 
 class TCCSS_Queue {
 
+	/**
+	 * __construct
+	 * 
+	 * @param   void
+	 * @return  void
+	 */
 	public function __construct() {
 		tccss()->log( 'Queue created' );
 		add_action( 'wp_print_styles', array( $this, 'check_invalidate' ), 99998 );
@@ -10,8 +16,13 @@ class TCCSS_Queue {
 	}
 	
 	/**
-	* Dequeue/ enqueue selected styles
-	*/
+	 * check_invalidate
+	 *
+	 * Check the page to see if it needs to be re-processed.
+	 *
+	 * @param   void
+	 * @return  void
+	 */
 	public function check_invalidate() {
 		
 		tccss()->processor()->validate();
@@ -19,8 +30,13 @@ class TCCSS_Queue {
 	}
 
 	/**
-	* Dequeue/ enqueue selected styles
-	*/
+	 * dequeue_enqueue_handles
+	 *
+	 * Dequeue/ enqueue selected styles
+	 *
+	 * @param   void
+	 * @return  void
+	 */
 	public function dequeue_enqueue_handles() {
 		
 		// if the preview flag is enabled, ignore the switcheroo
@@ -53,8 +69,13 @@ class TCCSS_Queue {
 	}
 
 	/**
-	* Enqueue TotallyCriticalCSS style
-	*/
+	 * enqueue_critical
+	 *
+	 * Enqueue TotallyCriticalCSS style
+	 *
+	 * @param   void
+	 * @return  void
+	 */
 	public function enqueue_critical() {
 		
 		// only do this if it's ready

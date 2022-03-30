@@ -44,6 +44,12 @@ class TCCSS_Plugin {
 
 	}
 	
+	/**
+	 * __construct
+	 * 
+	 * @param   void
+	 * @return  void
+	 */
 	public function __construct() {
 		
 		register_uninstall_hook( TCCSS_FILE, array( __CLASS__, 'uninstall' ) );
@@ -79,16 +85,26 @@ class TCCSS_Plugin {
 	}
 	
 	/**
-	* Add settings link on plugin page
-	*/
+	 * add_settings_link
+	 *
+	 * Add settings link on plugin page
+	 *
+	 * @param   array $links The links array.
+	 * @return  array The links array.
+	 */
 	public function add_settings_link( $links ) {
 		$links[] = '<a href="' . $this->get_admin_url() . '">' . __( 'Settings' ) . '</a>';
 		return $links;
 	}
 	
 	/**
-	* Register and enqueue admin stylesheet & scripts
-	*/
+	 * admin_init
+	 *
+	 * Register and enqueue admin stylesheet & scripts
+	 *
+	 * @param   void
+	 * @return  void
+	 */
 	public function admin_init() {
 		// only enqueue these things on the settings page
 		if ( wc_get_current_admin_url() == $this->get_admin_url() ) {
@@ -105,8 +121,13 @@ class TCCSS_Plugin {
 	}
 	
 	/**
-	* Register admin page and menu.
-	*/
+	 * admin_page
+	 *
+	 * Register admin page and menu.
+	 *
+	 * @param   void
+	 * @return  void
+	 */
 	public function admin_page() {
 		add_submenu_page(
 			'options-general.php',
@@ -120,15 +141,25 @@ class TCCSS_Plugin {
 	}
 	
 	/**
-	* Rebder admin view
-	*/
+	 * admin_page_settings
+	 *
+	 * Render admin view
+	 *
+	 * @param   void
+	 * @return  void
+	 */
 	public function admin_page_settings() {
 		require_once TCCSS_DIRNAME . '/admin/view.php';
 	}
 	
 	/**
-	* Add settings link on plugin page
-	*/
+	 * get_admin_url
+	 *
+	 * Add settings link on plugin page
+	 *
+	 * @param   void
+	 * @return  string the admin url
+	 */
 	public function get_admin_url() {
 		return admin_url( 'options-general.php?page=' . TCCSS_BASENAME );
 	}

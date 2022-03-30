@@ -102,6 +102,14 @@ if ( ! class_exists( 'TotallyCriticalCSS' ) ) :
 			
 		}
 		
+		/**
+		 * __call
+		 *
+		 * Sugar function to access class properties
+		 *
+		 * @param   string $name The property name.
+		 * @return  void
+		 */
 		public function __call( $name, $arguments ) {
 			return $this->{$name};
 		}
@@ -124,7 +132,7 @@ if ( ! class_exists( 'TotallyCriticalCSS' ) ) :
 		/**
 		 * log
 		 *
-		 * Defines a constant if doesnt already exist.
+		 * Output logging to the debug.
 		 *
 		 * @param   mixed  $log The value.
 		 * @return  void
