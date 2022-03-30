@@ -34,11 +34,11 @@ class TCCSS_Options {
 		return $value ? $value : $default;
 	}
 	
-	public function set( $name, $value ) {
+	public function set( $name, $value, $autoload=true ) {
 		/*if ( isset( $this->lookup[$name] ) ) {
 			unset( $this->lookup[$name] );
 		}*/
-		update_option( 'totallycriticalcss_' . $name, $value );
+		update_option( 'totallycriticalcss_' . $name, $value, $autoload );
 	}
 
 }

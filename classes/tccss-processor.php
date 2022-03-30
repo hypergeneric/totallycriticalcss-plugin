@@ -107,7 +107,7 @@ class TCCSS_Processor {
 			$route_data[$wp->request] = [];
 		}
 		$route_data[$wp->request][$name] = $value;
-		tccss()->options()->set( 'route_data', $route_data );
+		tccss()->options()->set( 'route_data', $route_data, false );
 	}
 	
 	public function get_route_value( $name ) {
