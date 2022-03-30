@@ -1,30 +1,24 @@
 <?php
 
 // pull the options
-$totallycriticalcss_api_key          = get_option( 'totallycriticalcss_api_key' );
-$totallycriticalcss_simplemode       = get_option( 'totallycriticalcss_simplemode' );
-$totallycriticalcss_show_metaboxes   = get_option( 'totallycriticalcss_show_metaboxes' );
-$totallycriticalcss_always_immediate = get_option( 'totallycriticalcss_always_immediate' );
-$totallycriticalcss_adminmode        = get_option( 'totallycriticalcss_adminmode' );
-$totallycriticalcss_selected_cpt     = get_option( 'totallycriticalcss_selected_cpt' ) === false ? [] : get_option( 'totallycriticalcss_selected_cpt' );
-$totallycriticalcss_custom_dequeue   = get_option( 'totallycriticalcss_custom_dequeue' ) === false ? [] : get_option( 'totallycriticalcss_custom_dequeue' );
-$totallycriticalcss_custom_routes    = get_option( 'totallycriticalcss_custom_routes' ) === false ? [] : get_option( 'totallycriticalcss_custom_routes' );
-$totallycriticalcss_selected_styles  = get_option( 'totallycriticalcss_selected_styles' ) === false ? [] : get_option( 'totallycriticalcss_selected_styles' );
+$totallycriticalcss_api_key          = tccss()->options()->get( 'api_key' );
+$totallycriticalcss_simplemode       = tccss()->options()->get( 'simplemode' );
+$totallycriticalcss_show_metaboxes   = tccss()->options()->get( 'show_metaboxes' );
+$totallycriticalcss_always_immediate = tccss()->options()->get( 'always_immediate' );
+$totallycriticalcss_adminmode        = tccss()->options()->get( 'adminmode' );
+$totallycriticalcss_selected_cpt     = tccss()->options()->get( 'selected_cpt', [] );
+$totallycriticalcss_custom_dequeue   = tccss()->options()->get( 'custom_dequeue', [] );
+$totallycriticalcss_custom_routes    = tccss()->options()->get( 'custom_routes', [] );
+$totallycriticalcss_selected_styles  = tccss()->options()->get( 'selected_styles', [] );
 
 // get a list of custom post types
 $my_post_types = get_post_types();
-
-if ( $totallycriticalcss_simplemode == false ) {
-	
-	// pull all the stylesheets from the homepage
-	$sheetlist = TotallyCriticalCSS::get_current_sheetlist();
-	
-}
+$sheetlist     = ! $totallycriticalcss_simplemode ? tccss()->sheetlist()->get_current() : [];
 
 ?>
 <div id="admin-view">
 	
-	<div id="logo"><img src="<?php echo plugin_dir_url( __DIR__ ); ?>admin/images/logo.png"></div>
+	<div id="logo"><img src="<?php echo TCCSS_PLUGIN_DIR; ?>admin/images/logo.png"></div>
 	
 	<form id="admin-view-form" autocomplete="off">
 		
