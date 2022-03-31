@@ -52,9 +52,10 @@ class TCCSS_Queue {
 		
 		// dequeue stuff
 		$adminmode = tccss()->options()->get( 'adminmode' );
+		$is_admin    = current_user_can( 'administrator' );
 		$styles    = tccss()->sheetlist()->get_selected();
 		foreach ( $styles as $handle => $url ) {
-			if ( $adminmode == true ) {
+			if ( $adminmode == true && $is_admin ) {
 				echo '<!-- TCSSS: dequeue: ( ' . $handle . ' ): ' . $url . ' -->' . "\n";
 			} else {
 				wp_dequeue_style( $handle );
@@ -65,9 +66,10 @@ class TCCSS_Queue {
 			
 			// enqueue stuff
 			$adminmode = tccss()->options()->get( 'adminmode' );
+			$is_admin    = current_user_can( 'administrator' );
 			$styles    = tccss()->sheetlist()->get_selected();
 			foreach ( $styles as $handle => $url ) {
-				if ( $adminmode == true ) {
+				if ( $adminmode == true && $is_admin ) {
 					echo '<!-- TCSSS: enqueue: ( ' . $handle . ' ): ' . $url . ' -->' . "\n";
 				} else {
 					wp_enqueue_style( $handle, $url, false, null, 'all' );
@@ -94,8 +96,9 @@ class TCCSS_Queue {
 		}
 		
 		$adminmode   = tccss()->options()->get( 'adminmode' );
+		$is_admin    = current_user_can( 'administrator' );
 		$criticalcss = tccss()->processor()->get_data();
-		if ( $adminmode == true ) {
+		if ( $adminmode == true && $is_admin ) {
 			echo '<!-- TCSSS: data: ' . print_r( $criticalcss, true ) . ' -->' . "\n";
 		} else {
 			echo '<!-- TCSSS --><style>' . $criticalcss->data->css . '</style><!-- /TCSSS -->' . "\n";
