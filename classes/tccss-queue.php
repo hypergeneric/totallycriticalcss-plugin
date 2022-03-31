@@ -51,17 +51,27 @@ class TCCSS_Queue {
 		}
 		
 		// dequeue stuff
-		$styles = tccss()->sheetlist()->get_selected();
+		$adminmode = tccss()->options()->get( 'adminmode' );
+		$styles    = tccss()->sheetlist()->get_selected();
 		foreach ( $styles as $handle => $url ) {
-			wp_dequeue_style( $handle );
+			if ( $adminmode == true ) {
+				echo '<!-- TCSSS: dequeue: ( ' . $handle . ' ): ' . $url . ' -->' . "\n";
+			} else {
+				wp_dequeue_style( $handle );
+			}
 		}
 		
 		add_action( 'get_footer', function() {
 			
 			// enqueue stuff
-			$styles = tccss()->sheetlist()->get_selected();
+			$adminmode = tccss()->options()->get( 'adminmode' );
+			$styles    = tccss()->sheetlist()->get_selected();
 			foreach ( $styles as $handle => $url ) {
-				wp_enqueue_style( $handle, $url, false, null, 'all' );
+				if ( $adminmode == true ) {
+					echo '<!-- TCSSS: enqueue: ( ' . $handle . ' ): ' . $url . ' -->' . "\n";
+				} else {
+					wp_enqueue_style( $handle, $url, false, null, 'all' );
+				}
 			}
 			
 		} );
@@ -83,7 +93,13 @@ class TCCSS_Queue {
 			return;
 		}
 		
-		echo '<!-- TotallyCriticalCSS --><style>' . tccss()->processor()->get_data()->data->css . '</style><!-- /TotallyCriticalCSS -->' . "\n";
+		$adminmode   = tccss()->options()->get( 'adminmode' );
+		$criticalcss = tccss()->processor()->get_data();
+		if ( $adminmode == true ) {
+			echo '<!-- TCSSS: data: ' . print_r( $criticalcss, true ) . ' -->' . "\n";
+		} else {
+			echo '<!-- TCSSS --><style>' . $criticalcss->data->css . '</style><!-- /TCSSS -->' . "\n";
+		}
 		
 	}
 

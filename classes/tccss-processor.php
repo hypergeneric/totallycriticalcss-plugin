@@ -233,13 +233,12 @@ class TCCSS_Processor {
 		$stylesheets = tccss()->sheetlist()->get_selected();
 		$css = [];
 		foreach ( $stylesheets as $handle => $url ) {
-			$css[] = $url;
+			$css[] = apply_filters( "tccss_parse_internal_uri", $url );
 		}
 		$css = implode( '::::', $css );
-		$css = str_replace( 'totallycritical.lndo.site', 'totallycriticalcss.com', $css );
 		
 		// get the post url
-		$page_url = str_replace( 'totallycritical.lndo.site', 'totallycriticalcss.com', $page_url );
+		$page_url = apply_filters( "tccss_parse_internal_uri", $page_url );
 		
 		// generate the url
 		$uri = 'http://api.totallycriticalcss.com/v1/';

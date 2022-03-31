@@ -85,8 +85,9 @@ class TCCSS_Post {
 	 */
 	public function metabox_callback( $post ) {
 		
-		$invalidate = tccss()->options()->getmeta( $post->ID, 'invalidate' );
+		$invalidate  = tccss()->options()->getmeta( $post->ID, 'invalidate' );
 		$criticalcss = tccss()->options()->getmeta( $post->ID, 'criticalcss', null );
+		$adminmode   = tccss()->options()->get( 'adminmode' );
 		
 		$prefix = __( 'Totally Critical CSS', 'tccss' );
 		$color  = 'red';
@@ -118,6 +119,40 @@ class TCCSS_Post {
 			$status
 		);
 		
+		if ( $adminmode && $criticalcss ) {?>
+			<style>#tccsstable{border-collapse:collapse;border:1px solid #ddd;border-radius:0;box-shadow:3px 3px 0 0 rgba(0,0,0,.03);width:100%;margin:16px 0}#tccsstable td{padding:5px;border:1px solid #dee2e6}</style>
+			<table id="tccsstable">
+				<tr>
+					<td><strong><?php esc_html_e( 'Success', 'tccss' ); ?></strong></td>
+					<td><?php echo $criticalcss->success ? 'true' : 'false'; ?></td>
+				</tr>
+				<tr>
+					<td><strong><?php esc_html_e( 'Message', 'tccss' ); ?></strong></td>
+					<td><?php echo $criticalcss->message; ?></td>
+				</tr>
+				<tr>
+					<td><strong><?php esc_html_e( 'Size', 'tccss' ); ?></strong></td>
+					<td><?php echo $this->formatBytes( strlen( $criticalcss->data->css ) ); ?></td>
+				</tr>
+			</table>
+		<?php
+		}
+		
+	}
+	
+	/**
+	 * formatBytes
+	 *
+	 * Convert bytes to something bigger
+	 *
+	 * @param   int $size bytes
+	 * @param   int $precision precision
+	 * @return  void
+	 */
+	function formatBytes ( $size, $precision = 2 ) {
+		$base     = log( $size, 1024 );
+		$suffixes = array( '', 'Kb', 'Mb', 'Gb', 'Tb' );   
+		return round( pow( 1024, $base - floor( $base ) ), $precision ) .' '. $suffixes[ floor( $base ) ];
 	}
 
 }
