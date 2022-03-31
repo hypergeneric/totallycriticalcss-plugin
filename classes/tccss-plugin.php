@@ -107,7 +107,7 @@ class TCCSS_Plugin {
 	 */
 	public function admin_init() {
 		// only enqueue these things on the settings page
-		if ( wc_get_current_admin_url() == $this->get_admin_url() ) {
+		if ( $this->get_current_admin_url() == $this->get_admin_url() ) {
 			wp_register_style( 'totallycriticalcss_plugin_stylesheet', TCCSS_PLUGIN_DIR . 'admin/css/admin.css' );
 			wp_enqueue_style( 'totallycriticalcss_plugin_stylesheet' );
 			wp_register_script( 'totallycriticalcss_script', TCCSS_PLUGIN_DIR . 'admin/js/admin.js', array( 'jquery' ) );
@@ -131,8 +131,8 @@ class TCCSS_Plugin {
 	public function admin_page() {
 		add_submenu_page(
 			'options-general.php',
-			'Totally Critical CSS',
-			'Totally Critical CSS',
+			__( 'Totally Critical CSS', 'tccss' ),
+			__( 'Totally Critical CSS', 'tccss' ),
 			'administrator',
 			TCCSS_DIRNAME,
 			array( $this, 'admin_page_settings' ),
@@ -150,6 +150,23 @@ class TCCSS_Plugin {
 	 */
 	public function admin_page_settings() {
 		require_once TCCSS_DIRNAME . '/admin/view.php';
+	}
+	
+	/**
+	 * get_current_admin_url
+	 *
+	 * Get the current admin url.  Thanks WC!
+	 *
+	 * @param   void
+	 * @return  void
+	 */
+	function get_current_admin_url() {
+		$uri = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+		$uri = preg_replace( '|^.*/wp-admin/|i', '', $uri );
+		if ( ! $uri ) {
+			return '';
+		}
+		return remove_query_arg( array( '_wpnonce' ), admin_url( $uri ) );
 	}
 	
 	/**

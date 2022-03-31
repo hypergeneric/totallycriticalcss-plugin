@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name:  TotallyCriticalCSS
+ * Plugin Name:  Totally Critical CSS
  * Plugin URI:   https://totallycriticalcss.com/
  * Description:  Totally fast and critical CSS.
  * Version:      1.0.0
@@ -8,7 +8,7 @@
  * Author URI:   https://compiledrogue.com
  * License:      GPL2 or later
  * License URI:  https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:  totallycriticalcss
+ * Text Domain:  tccss
  *
  * @package     TotallyCriticalCSS
  * @author      Compiled Rogue

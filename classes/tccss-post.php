@@ -70,7 +70,7 @@ class TCCSS_Post {
 		$selected_cpt   = $simplemode ? [ 'page', 'post', 'product' ] : tccss()->options()->get( 'selected_cpt', [] );
 		if ( $show_metaboxes ) {
 			foreach ( $selected_cpt as $post_type ) {
-				add_meta_box( 'totallycriticalcss_metabox_id', __( 'TotallyCriticalCSS', 'cr_crit' ), array( $this, 'metabox_callback' ), $post_type, 'side', 'high' );
+				add_meta_box( 'totallycriticalcss_metabox_id', __( 'Totally Critical CSS', 'tccss' ), array( $this, 'metabox_callback' ), $post_type, 'side', 'high' );
 			}
 		}
 	}
@@ -84,22 +84,40 @@ class TCCSS_Post {
 	 * @return  void
 	 */
 	public function metabox_callback( $post ) {
+		
 		$invalidate = tccss()->options()->getmeta( $post->ID, 'invalidate' );
+		$criticalcss = tccss()->options()->getmeta( $post->ID, 'criticalcss', null );
+		
+		$prefix = __( 'Totally Critical CSS', 'tccss' );
+		$color  = 'red';
+		$status = __( 'Not Generated', 'tccss' );
+		
 		if ( $invalidate ) {
-			$status = 'TotallyCriticalCSS is <strong style="color: green; text-transform: uppercase;">Pending</strong>' ;
+			$color  = 'green';
+			$status = 'Pending';
 		} else {
-			$criticalcss = tccss()->options()->getmeta( $post->ID, 'criticalcss' );
-			if ( ! $criticalcss ) {
-				$status = 'TotallyCriticalCSS is <strong style="color: red; text-transform: uppeprcase;">Not Generated</strong>';
-			} else {
-				if ( $criticalcss == null ) {
-					$status = '<strong style="color: red; text-transform: uppeprcase;">Error: Invalid Server Response</strong>';
-				} else  {
-					$status = $criticalcss->success === true ? 'TotallyCriticalCSS is <strong style="color: green; text-transform: uppercase;">Generated</strong>' : '<strong style="color: red; text-transform: uppeprcase;">Error: ' . $criticalcss->message . '</strong>';
+			if ( $criticalcss ) {
+				if ( $criticalcss->success === true ) {
+					$color  = 'green';
+					$status = __( 'Generated', 'tccss' );
+				} else if ( $criticalcss->success === false ) {
+					$prefix = __( 'Error', 'tccss' );
+					$color  = 'red';
+					$status = $criticalcss->message;
+				} else {
+					$prefix = __( 'Error', 'tccss' );
+					$status = __( 'Invalid Server Response', 'tccss' );
 				}
 			}
 		}
-		echo $status;
+		
+		printf(
+			__( '%1$s: <strong style="color: %2$s; text-transform: uppercase;">%3$s</strong>', 'tccss' ),
+			$prefix,
+			$color,
+			$status
+		);
+		
 	}
 
 }

@@ -249,6 +249,8 @@ class TCCSS_Processor {
 			'k' => get_option( 'totallycriticalcss_api_key' ),
 			't' => md5( uniqid( '', true ) ),
 		];
+		
+		tccss()->log( $query );
 
 		// pull the critical and return it
 		$response      = wp_remote_get( $uri . "?" . http_build_query( $query ), [ 'timeout' => 30 ] );
