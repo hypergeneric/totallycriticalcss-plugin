@@ -10,9 +10,9 @@ class TCCSS_Queue {
 	 */
 	public function __construct() {
 		tccss()->log( 'Queue created' );
-		add_action( 'wp_print_styles', array( $this, 'check_invalidate' ), 99998 );
-		add_action( 'wp_print_styles', array( $this, 'dequeue_enqueue_handles' ), 99999 );
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_critical' ) );
+		add_action( 'wp_print_styles', array( $this, 'check_invalidate' ), 99997 );
+		add_action( 'wp_print_styles', array( $this, 'dequeue_enqueue_handles' ), 99998 );
+		add_action( 'wp_print_styles', array( $this, 'enqueue_critical' ), 99999 );
 	}
 	
 	/**
