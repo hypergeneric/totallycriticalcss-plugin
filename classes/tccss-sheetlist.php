@@ -12,6 +12,20 @@ class TCCSS_Sheetlist {
 	}
 	
 	/**
+	 * get_checksum
+	 *
+	 * Get all the saved checksum.
+	 *
+	 * @param   void
+	 * @return  array
+	 */
+	public function get_checksum() {
+		
+		return get_transient( 'totallycriticalcss-sheetlist-checksum' );
+
+	}
+	
+	/**
 	 * get_current
 	 *
 	 * Get all the current stylesheets fro the homepage.

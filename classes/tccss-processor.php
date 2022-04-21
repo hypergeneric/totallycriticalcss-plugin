@@ -28,16 +28,20 @@ class TCCSS_Processor {
 		$checksum   = $this->get_checksum();
 		
 		tccss()->log( 'validate: ' . ( is_archive() ? $wp->request : get_the_ID() ) );
-		tccss()->log( 'invalidate: ' . $invalidate );
-		tccss()->log( 'checksum: ' . $checksum );
+		tccss()->log( 'invalidate: ' . ( $invalidate ? 'true' : 'false' ) );
+		tccss()->log( 'checksum: ' . ( $checksum ? $checksum : 'false' ) );
+		tccss()->log( 'sheetlist: ' . ( tccss()->sheetlist()->get_checksum() ? tccss()->sheetlist()->get_checksum() : 'false' ) );
+		tccss()->log( 'simplemode: ' . ( $simplemode ? 'true' : 'false' ) );
 		
 		// if it's simple mode, always check to see if the checksum is different that the current one
 		// if so, run it again
 		if ( $simplemode ) {
-			if ( $checksum != get_transient( 'totallycriticalcss-sheetlist-checksum' ) ) {
+			if ( $checksum != tccss()->sheetlist()->get_checksum() || ! $checksum ) {
 				$invalidate = true;
 			}
 		}
+		
+		tccss()->log( 'invalidate: ' . ( $invalidate ? 'true' : 'false' ) );
 		
 		// get the critical css
 		if ( $invalidate ) {
@@ -298,11 +302,12 @@ class TCCSS_Processor {
 		
 		// pull the critical css
 		$response_data = $this->get_critical_css( home_url( $route ) );
-		$this->set_data( json_decode( $response_data ) );
+		$json_data = json_decode( $response_data );
+		$this->set_data( $json_data );
 		
 		// if it's simple mode, save the global checksum at this point in time to check in the future
-		if ( $simplemode ) {
-			$this->set_checksum( get_transient( 'totallycriticalcss-sheetlist-checksum' ) );
+		if ( $simplemode && $json_data->success === true ) {
+			$this->set_checksum( tccss()->sheetlist()->get_checksum() );
 		}
 		
 		// clear out any invalidation flag
@@ -336,11 +341,12 @@ class TCCSS_Processor {
 		
 		// pull the critical css
 		$response_data = $this->get_critical_css( get_permalink( $id ) );
-		tccss()->options()->setmeta( $id, 'criticalcss', json_decode( $response_data ) );
+		$json_data = json_decode( $response_data );
+		tccss()->options()->setmeta( $id, 'criticalcss', $json_data );
 		
 		// if it's simple mode, save the global checksum at this point in time to check in the future
-		if ( $simplemode ) {
-			tccss()->options()->setmeta( $id, 'checksum', get_transient( 'totallycriticalcss-sheetlist-checksum' ) );
+		if ( $simplemode && $json_data->success === true ) {
+			tccss()->options()->setmeta( $id, 'checksum', tccss()->sheetlist()->get_checksum() );
 		}
 		
 		// clear out any invalidation flag
