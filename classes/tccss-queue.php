@@ -72,7 +72,8 @@ class TCCSS_Queue {
 				if ( $adminmode == true && $is_admin ) {
 					echo '<!-- TCSSS: enqueue: ( ' . $handle . ' ): ' . $url . ' -->' . "\n";
 				} else {
-					wp_enqueue_style( $handle, $url, false, null, 'all' );
+					echo '<link rel="preload" href="' . $url . '" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">';
+					echo '<noscript><link rel="stylesheet" href="' . $url . '"></noscript>';
 				}
 			}
 			
