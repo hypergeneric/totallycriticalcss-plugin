@@ -23,7 +23,6 @@ class TCCSS_Processor {
 		
 		global $wp;
 		
-		$simplemode = tccss()->options()->get( 'simplemode' );
 		$invalidate = $this->get_invalidate();
 		$checksum   = $this->get_checksum();
 		
@@ -31,14 +30,11 @@ class TCCSS_Processor {
 		tccss()->log( 'invalidate: ' . ( $invalidate ? 'true' : 'false' ) );
 		tccss()->log( 'checksum: ' . ( $checksum ? $checksum : 'false' ) );
 		tccss()->log( 'sheetlist: ' . ( tccss()->sheetlist()->get_checksum() ? tccss()->sheetlist()->get_checksum() : 'false' ) );
-		tccss()->log( 'simplemode: ' . ( $simplemode ? 'true' : 'false' ) );
 		
-		// if it's simple mode, always check to see if the checksum is different that the current one
+		// always check to see if the checksum is different that the current one
 		// if so, run it again
-		if ( $simplemode ) {
-			if ( $checksum != tccss()->sheetlist()->get_checksum() || ! $checksum ) {
-				$invalidate = true;
-			}
+		if ( $checksum != tccss()->sheetlist()->get_checksum() || ! $checksum ) {
+			$invalidate = true;
 		}
 		
 		tccss()->log( 'invalidate: ' . ( $invalidate ? 'true' : 'false' ) );
@@ -264,6 +260,43 @@ class TCCSS_Processor {
 	}
 	
 	/**
+	 * Gets the quest uri, with fallback for super global
+	 *
+	 * @return string
+	 */
+	function get_request_uri() {
+		$options     = array( 'options' => array( 'default' => '' ) );
+		$request_uri = filter_input( INPUT_SERVER, 'REQUEST_URI', FILTER_SANITIZE_URL, $options );
+		// Because there isn't an usable value, try the fallback.
+		if ( empty( $request_uri ) && isset( $_SERVER['REQUEST_URI'] ) ) {
+			$request_uri = filter_var( $_SERVER['REQUEST_URI'], FILTER_SANITIZE_URL, $options );
+		}
+		if ( $request_uri !== '/' ) {
+			$request_uri = trim( $request_uri, '/' );
+		}
+		return rawurldecode( $request_uri );
+	}
+	
+	/**
+	 * Gets the quest uri, with fallback for super global
+	 *
+	 * @return string
+	 */
+	function url_matches( $search, $url ) {
+		if ( strtolower( $search ) == strtolower( $url ) ) {
+			return true;
+		}
+		$search = str_replace( '`', '\\`', $search );
+		// Suppress warning: a faulty redirect will give a warning and not an exception. So we can't catch it.
+		// See issue: https://github.com/Yoast/wordpress-seo-premium/issues/662.
+		if ( 1 === @preg_match( "`{$search}`", $url, $url_matches ) ) {
+			//print_r( $url_matches );
+			return true;
+		}
+		return false;
+	}
+	
+	/**
 	 * archive
 	 *
 	 * Process an archive page.
@@ -277,12 +310,22 @@ class TCCSS_Processor {
 		
 		$simplemode    = tccss()->options()->get( 'simplemode' );
 		$custom_routes = tccss()->options()->get( 'custom_routes', [] );
+		$ignore_routes = tccss()->options()->get( 'ignore_routes', [] );
 		
 		// should we process this route?
+		$request_url   = $this->get_request_uri();
 		$process_route = $simplemode;
+		foreach ( $ignore_routes as $ignore_route ) {
+			$ignore = $this->url_matches( $ignore_route, $request_url );
+			if ( $ignore ) {
+				return;
+			}
+		}
+		
 		if ( $process_route == false ) {
 			foreach ( $custom_routes as $custom_route ) {
-				if ( strtolower( trim( $custom_route, '/' ) ) == strtolower( trim( $route, '/' ) ) ) {
+				$process = $this->url_matches( $custom_route, $request_url );
+				if ( $process == true && $process_route == false ) {
 					$process_route = true;
 				}
 			}
@@ -306,7 +349,7 @@ class TCCSS_Processor {
 		$this->set_data( $json_data );
 		
 		// if it's simple mode, save the global checksum at this point in time to check in the future
-		if ( $simplemode && $json_data->success === true ) {
+		if ( $json_data->success === true ) {
 			$this->set_checksum( tccss()->sheetlist()->get_checksum() );
 		}
 		
@@ -329,8 +372,19 @@ class TCCSS_Processor {
 		tccss()->log( 'get_totallycriticalcss: ' . $id );
 		
 		$simplemode = tccss()->options()->get( 'simplemode' );
-		$invalidate = tccss()->options()->getmeta( $id, 'invalidate' );
+		$ignore_routes = tccss()->options()->get( 'ignore_routes', [] );
 		
+		// should we process this route?
+		$request_url = $this->get_request_uri();
+		foreach ( $ignore_routes as $ignore_route ) {
+			$ignore = $this->url_matches( $ignore_route, $request_url );
+			if ( $ignore ) {
+				return;
+			}
+		}
+		
+		// is it already running?
+		$invalidate = tccss()->options()->getmeta( $id, 'invalidate' );
 		if ( $invalidate == 'loading' ) {
 			return;
 		}
@@ -345,7 +399,7 @@ class TCCSS_Processor {
 		tccss()->options()->setmeta( $id, 'criticalcss', $json_data );
 		
 		// if it's simple mode, save the global checksum at this point in time to check in the future
-		if ( $simplemode && $json_data->success === true ) {
+		if ( $json_data->success === true ) {
 			tccss()->options()->setmeta( $id, 'checksum', tccss()->sheetlist()->get_checksum() );
 		}
 		

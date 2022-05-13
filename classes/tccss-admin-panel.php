@@ -15,6 +15,8 @@ class TCCSS_AdminPanel {
 			add_action( 'wp_ajax_totallycriticalcss_delete_custum_dequeue', array( $this, 'delete_custum_dequeue' ) );
 			add_action( 'wp_ajax_totallycriticalcss_add_custum_route', array( $this, 'add_custum_route' ) );
 			add_action( 'wp_ajax_totallycriticalcss_delete_custum_route', array( $this, 'delete_custum_route' ) );
+			add_action( 'wp_ajax_totallycriticalcss_add_ignore_route', array( $this, 'add_ignore_route' ) );
+			add_action( 'wp_ajax_totallycriticalcss_delete_ignore_route', array( $this, 'delete_ignore_route' ) );
 		}
 	}
 	
@@ -44,6 +46,7 @@ class TCCSS_AdminPanel {
 		}
 		
 		tccss()->plugin()->clear_tccss_data();
+		tccss()->sheetlist()->set_checksum();
 		
 	}
 	
@@ -108,6 +111,7 @@ class TCCSS_AdminPanel {
 		$custom_routes[] = $form_url;
 		
 		tccss()->options()->set( 'custom_routes', $custom_routes );
+		tccss()->plugin()->clear_tccss_data();
 		
 		wp_send_json_success( $custom_routes );
 		
@@ -129,8 +133,53 @@ class TCCSS_AdminPanel {
 		array_splice( $custom_routes, array_search( $form_url, $custom_routes ), 1) ;
 		
 		tccss()->options()->set( 'custom_routes', $custom_routes );
+		tccss()->plugin()->clear_tccss_data();
 		
 		wp_send_json_success( $custom_routes );
+		
+	}
+	
+	/**
+	 * add_ignore_route
+	 *
+	 * Add ignore route.
+	 *
+	 * @param   void
+	 * @return  void
+	 */
+	public function add_ignore_route() {
+		
+		$form_url = $_POST[ 'form_url' ];
+		
+		$ignore_routes = tccss()->options()->get( 'ignore_routes', [] );
+		$ignore_routes[] = $form_url;
+		
+		tccss()->options()->set( 'ignore_routes', $ignore_routes );
+		tccss()->plugin()->clear_tccss_data();
+		
+		wp_send_json_success( $ignore_routes );
+		
+	}
+	
+	/**
+	 * delete_ignore_route
+	 *
+	 * Delete custom route.
+	 *
+	 * @param   void
+	 * @return  void
+	 */
+	public function delete_ignore_route() {
+		
+		$form_url = $_POST[ 'form_url' ];
+		
+		$ignore_routes = tccss()->options()->get( 'ignore_routes', [] );
+		array_splice( $ignore_routes, array_search( $form_url, $ignore_routes ), 1) ;
+		
+		tccss()->options()->set( 'ignore_routes', $ignore_routes );
+		tccss()->plugin()->clear_tccss_data();
+		
+		wp_send_json_success( $ignore_routes );
 		
 	}
 

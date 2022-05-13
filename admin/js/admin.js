@@ -106,7 +106,7 @@
 				url: ajaxURL,
 				data:{
 					action: 'totallycriticalcss_add_custum_route',
-					form_url: $( '#add-route-url' ).val(),
+					form_url: $( '#add-custom-url' ).val(),
 				},
 				success: function( response ) {
 					$( '#custom_routes' ).removeClass( 'loading' );
@@ -132,6 +132,62 @@
 				success: function( response ) {
 					$( '#custom_routes' ).removeClass( 'loading' );
 					createCustomRouteTable( response.data );
+					console.log(response);
+				}
+			} );
+			e.preventDefault();
+			return false;
+		} );
+		
+		// ignore routes functions / actions
+		
+		function createIgnoreRouteTable ( data ) {
+			tccssadmin.find( '#ignore_routes tbody tr:not( .seed )' ).remove();
+			var seed = tccssadmin.find( '#ignore_routes tbody tr.seed' );
+			for ( var i = 0; i < data.length; i++ ) {
+				var url = data[ i ];
+				var clone = seed.clone( true );
+				clone.removeClass( 'seed' );
+				clone.find( '.route' ).text( url );
+				clone.find( '.button-delete' ).attr( 'data-url', url );
+				clone.find( '.button-delete' ).data( 'url', url );
+				tccssadmin.find( '#ignore_routes tbody' ).append( clone );
+			}
+		}
+		
+		tccssadmin.find( '#add-form-ignore-route' ).click( function( e ) {
+			$( '#ignore_routes' ).addClass( 'loading' );
+			$.ajax( {
+				method: 'POST',
+				url: ajaxURL,
+				data:{
+					action: 'totallycriticalcss_add_ignore_route',
+					form_url: $( '#add-ignore-url' ).val(),
+				},
+				success: function( response ) {
+					$( '#ignore_routes' ).removeClass( 'loading' );
+					tccssadmin.find( '.adder-form-cancel' ).click();
+					tccssadmin.find( '.adder-form input' ).val( '' );
+					createIgnoreRouteTable( response.data );
+					console.log(response);
+				}
+			} );
+			e.preventDefault();
+			return false;
+		} );
+		
+		tccssadmin.find( '.ignore-route-delete' ).click( function( e ) {
+			$( '#ignore_routes' ).addClass( 'loading' );
+			$.ajax( {
+				method: 'POST',
+				url: ajaxURL,
+				data:{
+					action: 'totallycriticalcss_delete_ignore_route',
+					form_url: $( this ).data( 'url' ),
+				},
+				success: function( response ) {
+					$( '#ignore_routes' ).removeClass( 'loading' );
+					createIgnoreRouteTable( response.data );
 					console.log(response);
 				}
 			} );

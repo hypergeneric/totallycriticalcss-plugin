@@ -25,6 +25,12 @@ class TCCSS_Queue {
 	 */
 	public function check_invalidate() {
 		
+		// if the preview flag is enabled, ignore the switcheroo
+		$preview = isset( $_GET['totallycriticalcss'] ) ? $_GET['totallycriticalcss'] : false;
+		if ( $preview == 'preview' ) {
+			return;
+		}
+		
 		tccss()->processor()->validate();
 		
 	}
@@ -90,6 +96,12 @@ class TCCSS_Queue {
 	 * @return  void
 	 */
 	public function enqueue_critical() {
+		
+		// if the preview flag is enabled, ignore the switcheroo
+		$preview = isset( $_GET['totallycriticalcss'] ) ? $_GET['totallycriticalcss'] : false;
+		if ( $preview == 'preview' ) {
+			return;
+		}
 		
 		// only do this if it's ready
 		if ( ! tccss()->processor()->processed() ) {

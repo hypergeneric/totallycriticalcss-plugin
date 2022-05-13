@@ -16,6 +16,7 @@ class TCCSS_Plugin {
 		update_option( 'totallycriticalcss_show_metaboxes', true );
 		update_option( 'totallycriticalcss_always_immediate', false );
 		update_option( 'totallycriticalcss_adminmode', false );
+		update_option( 'totallycriticalcss_ignore_routes', [ '^my-account/*' ] );
 		update_option( 'totallycriticalcss_selected_cpt', [ 'page', 'post', 'product' ] );
 
 	}
@@ -38,6 +39,7 @@ class TCCSS_Plugin {
 		delete_option( 'totallycriticalcss_selected_cpt' );
 		delete_option( 'totallycriticalcss_custom_dequeue' );
 		delete_option( 'totallycriticalcss_custom_routes' );
+		delete_option( 'totallycriticalcss_ignore_routes' );
 		delete_option( 'totallycriticalcss_selected_styles' );
 		
 		tccss()->plugin()->clear_tccss_data();

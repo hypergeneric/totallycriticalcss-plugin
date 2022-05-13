@@ -78,14 +78,11 @@ class TCCSS_Sheetlist {
 			// if we are using simplemode, get all the current handles, and save them to a transient
 			// also, save a hash of the data plus a timestamp to check against for future calls
 			// we are going to do this no more than once a day
-			$sheetlist = get_transient( 'totallycriticalcss-sheetlist' );
-			if ( ! $sheetlist ) {
-				$sheetlist = tccss()->sheetlist()->get_current();;
+			$css = get_transient( 'totallycriticalcss-sheetlist' );
+			if ( ! $css ) {
+				$css = tccss()->sheetlist()->get_current();
 				set_transient( 'totallycriticalcss-sheetlist', $sheetlist, 86400 );
-				set_transient( 'totallycriticalcss-sheetlist-checksum', md5( serialize ( $sheetlist ) ), 86400 );
-			}
-			foreach ( $sheetlist as $handle => $url ) {
-				$css = $sheetlist;
+				$this->set_checksum();
 			}
 			
 		} else {
@@ -102,6 +99,21 @@ class TCCSS_Sheetlist {
 		}
 		
 		return $css;
+		
+	}
+	
+	/**
+	 * get_selected
+	 *
+	 * Get the stylesheets to enqueue/dequeue
+	 *
+	 * @param   void
+	 * @return  array
+	 */
+	public function set_checksum() {
+		
+		$sheetlist = $this->get_selected();
+		set_transient( 'totallycriticalcss-sheetlist-checksum', md5( serialize ( $sheetlist ) ), 86400 );
 		
 	}
 

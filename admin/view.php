@@ -9,6 +9,7 @@ $totallycriticalcss_adminmode        = tccss()->options()->get( 'adminmode' );
 $totallycriticalcss_selected_cpt     = tccss()->options()->get( 'selected_cpt', [] );
 $totallycriticalcss_custom_dequeue   = tccss()->options()->get( 'custom_dequeue', [] );
 $totallycriticalcss_custom_routes    = tccss()->options()->get( 'custom_routes', [] );
+$totallycriticalcss_ignore_routes    = tccss()->options()->get( 'ignore_routes', [] );
 $totallycriticalcss_selected_styles  = tccss()->options()->get( 'selected_styles', [] );
 
 // get a list of custom post types
@@ -26,6 +27,7 @@ $sheetlist     = ! $totallycriticalcss_simplemode ? tccss()->sheetlist()->get_cu
 			
 			<ul class="tabs">
 				<li data-tab="settings"><?php esc_html_e( 'Settings', 'tccss' ); ?></li>
+				<li data-tab="ignore-routes"><?php esc_html_e( 'Ignore Routes', 'tccss' ); ?></li>
 				<li class="<?php echo $totallycriticalcss_simplemode == true ? 'disabled' : ''; ?>" data-tab="stylesheets"><?php esc_html_e( 'Stylesheets', 'tccss' ); ?></li>
 				<li class="<?php echo $totallycriticalcss_simplemode == true ? 'disabled' : ''; ?>" data-tab="cpt"><?php esc_html_e( 'Custom Post Types', 'tccss' ); ?></li>
 				<li class="<?php echo $totallycriticalcss_simplemode == true ? 'disabled' : ''; ?>" data-tab="routes"><?php esc_html_e( 'Routes', 'tccss' ); ?></li>
@@ -98,6 +100,71 @@ $sheetlist     = ! $totallycriticalcss_simplemode ? tccss()->sheetlist()->get_cu
 						</div>
 						
 						<input id="submitForm" class="button button-primary" name="submitForm" type="submit" value="<?php esc_attr_e( 'Save', 'tccss' ); ?>" />
+						
+					</div>
+				</li>
+				
+				<li id="tab-ignore-routes">
+					<div class="content__wrapper">
+						
+						<div id="ignore_routes" class="ajax-group">
+							
+							<div class="screen" style="background-image: url( <?php echo esc_url( get_admin_url() . 'images/loading.gif' ); ?> );"></div>
+						
+							<table>
+								<thead>
+									<th>
+										<td>
+											<span class='handle'><?php esc_html_e( 'Ignore Routes', 'tccss' ); ?></span>
+										</td>
+									</th>
+								</thead>
+								<tbody>
+									<tr class="seed">
+										<td class="check">
+											<input type="checkbox" 
+												disabled="disabled"
+												checked="checked" />
+										</td>
+										<td>
+											<span class='route'></span>
+										</td>
+										<td class="actions">
+											<button class="button button-delete ignore-route-delete" data-url="">
+												<span class="dashicons dashicons-trash"></span>
+											</button>
+										</td>
+									</tr>
+								<?php foreach ( $totallycriticalcss_ignore_routes as $url ) { ?>
+									<tr>
+										<td class="check">
+											<input type="checkbox" 
+												disabled="disabled"
+												checked="checked" />
+										</td>
+										<td>
+											<span class='route'><?php echo $url; ?></span>
+										</td>
+										<td class="actions">
+											<button class="button button-delete ignore-route-delete" data-url="<?php echo $url; ?>">
+												<span class="dashicons dashicons-trash"></span>
+											</button>
+										</td>
+									</tr>
+								<?php } ?>
+								</tbody>
+							</table>
+							
+							<div class="adder-form">
+								<label for="add-ignore-url"><?php esc_html_e( 'URL', 'tccss' ); ?></label>
+								<input id="add-ignore-url" type="text" />
+								<button id="add-form-ignore-route" class="button button-primary"><?php esc_html_e( 'Add', 'tccss' ); ?></button>
+								<button class="button adder-form-cancel"><?php esc_html_e( 'Cancel', 'tccss' ); ?></button>
+							</div>
+							
+							<button class="button button-primary adder-form-show"><?php esc_html_e( 'Add Ignore Route', 'tccss' ); ?></button>
+						
+						</div>
 						
 					</div>
 				</li>
@@ -310,8 +377,8 @@ $sheetlist     = ! $totallycriticalcss_simplemode ? tccss()->sheetlist()->get_cu
 							</table>
 							
 							<div class="adder-form">
-								<label for="add-route-url"><?php esc_html_e( 'URL', 'tccss' ); ?></label>
-								<input id="add-route-url" type="text" />
+								<label for="add-custom-url"><?php esc_html_e( 'URL', 'tccss' ); ?></label>
+								<input id="add-custom-url" type="text" />
 								<button id="add-form-custum-route" class="button button-primary"><?php esc_html_e( 'Add', 'tccss' ); ?></button>
 								<button class="button adder-form-cancel"><?php esc_html_e( 'Cancel', 'tccss' ); ?></button>
 							</div>
