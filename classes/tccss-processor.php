@@ -245,7 +245,8 @@ class TCCSS_Processor {
 		$query = [
 			'u' => $page_url,
 			'c' => $css,
-			'k' => get_option( 'totallycriticalcss_api_key' ),
+			'k' => tccss()->options()->get( 'api_key' ),
+			'd' => tccss()->options()->get( 'simplemode' ) == true ? '1' : '0',
 			't' => md5( uniqid( '', true ) ),
 		];
 		
