@@ -204,7 +204,6 @@
 			var api_key          = $( this ).find( '#api_key' ).val();
 			var simplemode       = $( this ).find( '#simplemode' ).is( ':checked' );
 			var show_metaboxes   = $( this ).find( '#show_metaboxes' ).is( ':checked' );
-			var always_immediate = $( this ).find( '#always_immediate' ).is( ':checked' );
 			var adminmode        = $( this ).find( '#adminmode' ).is( ':checked' );
 			
 			var selected_styles = {};
@@ -227,7 +226,6 @@
 					api_key: api_key,
 					simplemode: simplemode,
 					show_metaboxes: show_metaboxes,
-					always_immediate: always_immediate,
 					adminmode: adminmode,
 					selected_styles: selected_styles,
 					selected_cpt: selected_cpt

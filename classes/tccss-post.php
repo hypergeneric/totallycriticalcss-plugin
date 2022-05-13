@@ -42,15 +42,8 @@ class TCCSS_Post {
 		
 		tccss()->log( 'save_post: ' . $id );
 		
-		$always_immediate = tccss()->options()->get( 'always_immediate' );
-		
-		if ( $always_immediate ) {
-			// if we are doing immediate, just run it now
-			tccss()->processor()->single( $id );
-		} else {
-			// otherwise, just set the invalidation flag as true
-			tccss()->options()->setmeta( $id, 'invalidate', true );
-		}
+		// set the invalidate flag
+		tccss()->options()->setmeta( $id, 'invalidate', true );
 		
 		return $id;
 		

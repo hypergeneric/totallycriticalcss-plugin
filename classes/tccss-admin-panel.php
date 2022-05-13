@@ -31,7 +31,7 @@ class TCCSS_AdminPanel {
 	public function save_admin_page() {
 		
 		$literals = [ 'api_key', 'selected_styles', 'selected_cpt' ];
-		$bools = [ 'simplemode', 'show_metaboxes', 'always_immediate', 'adminmode' ];
+		$bools = [ 'simplemode', 'show_metaboxes', 'adminmode' ];
 		
 		foreach ( $literals as $key ) {
 			if ( isset( $_POST[ $key ] ) ) {
