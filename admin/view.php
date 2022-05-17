@@ -2,8 +2,8 @@
 
 // pull the options
 $totallycriticalcss_api_key          = tccss()->options()->get( 'api_key' );
-$totallycriticalcss_viewport_width   = tccss()->options()->get( 'viewport_width' );
-$totallycriticalcss_viewport_height  = tccss()->options()->get( 'viewport_height' );
+$totallycriticalcss_viewport_width   = tccss()->options()->get( 'viewport_width', 1400 );
+$totallycriticalcss_viewport_height  = tccss()->options()->get( 'viewport_height', 1080 );
 $totallycriticalcss_simplemode       = tccss()->options()->get( 'simplemode' );
 $totallycriticalcss_show_metaboxes   = tccss()->options()->get( 'show_metaboxes' );
 $totallycriticalcss_adminmode        = tccss()->options()->get( 'adminmode' );

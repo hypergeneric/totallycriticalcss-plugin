@@ -194,6 +194,8 @@ class TCCSS_Processor {
 		$query = [
 			'u' => $page_url,
 			'c' => $css,
+			'w' => tccss()->options()->get( 'viewport_width' ),
+			'h' => tccss()->options()->get( 'viewport_height' ),
 			'k' => tccss()->options()->get( 'api_key' ),
 			'd' => tccss()->options()->get( 'simplemode' ) == true ? '1' : '0',
 			't' => md5( uniqid( '', true ) ),

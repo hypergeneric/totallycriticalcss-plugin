@@ -41,6 +41,8 @@ class TCCSS_Plugin {
 		delete_option( 'totallycriticalcss_custom_routes' );
 		delete_option( 'totallycriticalcss_ignore_routes' );
 		delete_option( 'totallycriticalcss_selected_styles' );
+		delete_option( 'totallycriticalcss_viewport_width' );
+		delete_option( 'totallycriticalcss_viewport_height' );
 		
 		tccss()->plugin()->clear_tccss_data();
 
