@@ -17,6 +17,8 @@ class TCCSS_Plugin {
 		update_option( 'totallycriticalcss_adminmode', false );
 		update_option( 'totallycriticalcss_ignore_routes', [ '^my-account/*' ] );
 		update_option( 'totallycriticalcss_selected_cpt', [ 'page', 'post', 'product' ] );
+		update_option( 'totallycriticalcss_viewport_width', 1400 );
+		update_option( 'totallycriticalcss_viewport_height', 1080 );
 
 	}
 
@@ -76,11 +78,13 @@ class TCCSS_Plugin {
 
 		global $wpdb;
 		
-		$deleted_rows = $wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE `meta_key` = 'totallycriticalcss_criticalcss'" );
-		$deleted_rows = $wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE `meta_key` = 'totallycriticalcss_invalidate'" );
-		$deleted_rows = $wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE `meta_key` = 'totallycriticalcss_checksum'" );
+		// kill all the post meta values
+		$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE `meta_key` = 'totallycriticalcss_criticalcss'" );
+		$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE `meta_key` = 'totallycriticalcss_invalidate'" );
+		$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE `meta_key` = 'totallycriticalcss_checksum'" );
 		
-		delete_option( 'totallycriticalcss_route_data' );
+		// kill the route entries in options
+		$wpdb->query( "DELETE FROM {$wpdb->options} WHERE `option_name` LIKE 'totallycriticalcss_route_%'" );
 
 	}
 	
@@ -108,9 +112,9 @@ class TCCSS_Plugin {
 	public function admin_init() {
 		// only enqueue these things on the settings page
 		if ( $this->get_current_admin_url() == $this->get_admin_url() ) {
-			wp_register_style( 'totallycriticalcss_plugin_stylesheet', TCCSS_PLUGIN_DIR . 'admin/css/admin.css' );
+			wp_register_style( 'totallycriticalcss_plugin_stylesheet', TCCSS_PLUGIN_DIR . 'admin/css/admin.css', [], TCCSS_VERSION );
 			wp_enqueue_style( 'totallycriticalcss_plugin_stylesheet' );
-			wp_register_script( 'totallycriticalcss_script', TCCSS_PLUGIN_DIR . 'admin/js/admin.js', array( 'jquery' ) );
+			wp_register_script( 'totallycriticalcss_script', TCCSS_PLUGIN_DIR . 'admin/js/admin.js', array( 'jquery' ), TCCSS_VERSION );
 			wp_localize_script( 'totallycriticalcss_script', 'totallycriticalcss_obj',
 				array(
 					'ajax_url' => admin_url( 'admin-ajax.php' )

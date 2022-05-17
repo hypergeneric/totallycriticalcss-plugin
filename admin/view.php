@@ -2,6 +2,8 @@
 
 // pull the options
 $totallycriticalcss_api_key          = tccss()->options()->get( 'api_key' );
+$totallycriticalcss_viewport_width   = tccss()->options()->get( 'viewport_width' );
+$totallycriticalcss_viewport_height  = tccss()->options()->get( 'viewport_height' );
 $totallycriticalcss_simplemode       = tccss()->options()->get( 'simplemode' );
 $totallycriticalcss_show_metaboxes   = tccss()->options()->get( 'show_metaboxes' );
 $totallycriticalcss_adminmode        = tccss()->options()->get( 'adminmode' );
@@ -40,6 +42,28 @@ $sheetlist     = ! $totallycriticalcss_simplemode ? tccss()->sheetlist()->get_cu
 						<div class="field">
 							<label for="api_key"><?php esc_html_e( 'API Key', 'tccss' ); ?></label><br>
 							<input id="api_key" name="api_key" type="text" placeholder="<?php esc_attr_e( 'Insert API Key', 'tccss' ); ?>" value="<?php echo $totallycriticalcss_api_key; ?>">
+							<div class="desc">
+								<?php printf(
+									esc_html__( 'You\'ll need one of these for this to work.  Sign up at %1$s or if you already have an account, get the API key in your %2$s.', 'tccss' ),
+									'<a href="https://totallycriticalcss.com/" target="_blank">https://totallycriticalcss.com/</a>',
+									sprintf(
+										'<a href="https://totallycriticalcss.com/my-account/" target="_blank">%1$s</a>',
+										esc_html__( 'account', 'tccss' ),
+									)
+								); ?>
+							</div>
+						</div>
+						
+						<div class="field">
+							<label for="viewport_width"><?php esc_html_e( 'Viewport Size', 'tccss' ); ?></label><br>
+							<div class="viewport">
+								<input id="viewport_width" name="viewport_width" type="number" placeholder="<?php esc_attr_e( 'In Pixels', 'tccss' ); ?>" value="<?php echo $totallycriticalcss_viewport_width; ?>">
+								<span>X</span>
+								<input id="viewport_height" name="viewport_height" type="number" placeholder="<?php esc_attr_e( 'In Pixels', 'tccss' ); ?>" value="<?php echo $totallycriticalcss_viewport_height; ?>">
+							</div>
+							<div class="desc">
+								<?php esc_html_e( 'You can probably leave these alone.  You can change them if your desktop site width is greater than 1400 or if you want to include items lower than 1080 pixels down below the fold.', 'tccss' ); ?>
+							</div>
 						</div>
 						
 						<div class="checkbox">

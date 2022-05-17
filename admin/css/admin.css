@@ -41,6 +41,16 @@ img {
 	padding-bottom: 10px;
 	display: inline-block;
 }
+#tccssWrapper .content__wrapper .viewport {
+	display: flex;
+	align-items: center;
+}
+	#tccssWrapper .content__wrapper .viewport span {
+		padding: 10px;
+		font-weight: bold;
+		line-height: 0;
+	}
+#tccssWrapper .tab__content input[type='number'] ,
 #tccssWrapper .tab__content input[type='text'] {
 	width: 100%;
 	padding: 10px;	
@@ -85,7 +95,7 @@ img {
 		box-shadow: 3px 3px 0px 0px rgba(0,0,0,0.03);
 		height: auto !important;
 	}
-	#tccssWrapper .tab__content .checkbox .desc {
+	#tccssWrapper .tab__content .desc {
 		margin-top: 7px;
 	}
 

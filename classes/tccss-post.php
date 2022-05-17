@@ -43,7 +43,7 @@ class TCCSS_Post {
 		tccss()->log( 'save_post: ' . $id );
 		
 		// set the invalidate flag
-		tccss()->options()->setmeta( $id, 'invalidate', true );
+		tccss()->options()->setpostmeta( $id, 'invalidate', true );
 		
 		return $id;
 		
@@ -78,8 +78,8 @@ class TCCSS_Post {
 	 */
 	public function metabox_callback( $post ) {
 		
-		$invalidate  = tccss()->options()->getmeta( $post->ID, 'invalidate' );
-		$criticalcss = tccss()->options()->getmeta( $post->ID, 'criticalcss', null );
+		$invalidate  = tccss()->options()->getpostmeta( $post->ID, 'invalidate' );
+		$criticalcss = tccss()->options()->getpostmeta( $post->ID, 'criticalcss', null );
 		$adminmode   = tccss()->options()->get( 'adminmode' );
 		
 		$prefix = __( 'Totally Critical CSS', 'tccss' );

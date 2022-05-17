@@ -12,20 +12,6 @@ class TCCSS_Sheetlist {
 	}
 	
 	/**
-	 * get_checksum
-	 *
-	 * Get all the saved checksum.
-	 *
-	 * @param   void
-	 * @return  array
-	 */
-	public function get_checksum() {
-		
-		return get_transient( 'totallycriticalcss-sheetlist-checksum' );
-
-	}
-	
-	/**
 	 * get_current
 	 *
 	 * Get all the current stylesheets fro the homepage.
@@ -34,6 +20,8 @@ class TCCSS_Sheetlist {
 	 * @return  array
 	 */
 	public function get_current() {
+		
+		tccss()->log( 'get_current' );
 
 		$sheets = [];
 		$response = wp_remote_get( get_home_url() . "/?totallycriticalcss=preview" );
@@ -81,7 +69,7 @@ class TCCSS_Sheetlist {
 			$css = get_transient( 'totallycriticalcss-sheetlist' );
 			if ( ! $css ) {
 				$css = tccss()->sheetlist()->get_current();
-				set_transient( 'totallycriticalcss-sheetlist', $sheetlist, 86400 );
+				set_transient( 'totallycriticalcss-sheetlist', $css, 86400 );
 				$this->set_checksum();
 			}
 			
@@ -100,6 +88,20 @@ class TCCSS_Sheetlist {
 		
 		return $css;
 		
+	}
+	
+	/**
+	 * get_checksum
+	 *
+	 * Get all the saved checksum.
+	 *
+	 * @param   void
+	 * @return  array
+	 */
+	public function get_checksum() {
+		
+		return get_transient( 'totallycriticalcss-sheetlist-checksum' );
+
 	}
 	
 	/**

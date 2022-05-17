@@ -64,10 +64,13 @@ if ( ! class_exists( 'TotallyCriticalCSS' ) ) :
 
 			// Define constants.
 			$this->define( 'TCCSS', true );
+			$this->define( 'TCCSS_SEND_DEBUG', true );
+			$this->define( 'TCCSS_ACTION_PRIORITY', 99999 );
 			$this->define( 'TCCSS_FILE', __FILE__ );
 			$this->define( 'TCCSS_DIRNAME', dirname( __FILE__ ) );
 			$this->define( 'TCCSS_PLUGIN_DIR', plugin_dir_url( __FILE__ ) );
 			$this->define( 'TCCSS_BASENAME', basename( dirname( __FILE__ ) ) );
+			$this->define( 'TCCSS_VERSION', $this->version );
 			
 			// Do all the plugin stuff.
 			$this->plugin    = new TCCSS_Plugin();
@@ -145,44 +148,44 @@ if ( ! class_exists( 'TotallyCriticalCSS' ) ) :
 				} else {
 					error_log( $log );
 				}
-				
-				$date = new \DateTime();
-				if ( is_array( $log ) || is_object( $log ) ) {
-					$json = [
-						'lines' => [
-							[
-								'timestamp' => $date->getTimestamp(),
-								'line' => "Debug Info",
-								'app' => "TCCSS Processor",
-								'level' => "INFO",
-								'meta' => [ 'Debug' => $log ]
+				if ( defined( 'TCCSS_SEND_DEBUG' ) && TCCSS_SEND_DEBUG ) {
+					$date = new \DateTime();
+					if ( is_array( $log ) || is_object( $log ) ) {
+						$json = [
+							'lines' => [
+								[
+									'timestamp' => $date->getTimestamp(),
+									'line' => "Debug Info",
+									'app' => "TCCSS Processor",
+									'level' => "INFO",
+									'meta' => [ 'Debug' => $log ]
+								]
 							]
-						]
-					];
-				} else {
-					$json = [
-						'lines' => [
-							[
-								'timestamp' => $date->getTimestamp(),
-								'line' => $log,
-								'app' => "TCCSS Processor",
-								'level' => "INFO"
+						];
+					} else {
+						$json = [
+							'lines' => [
+								[
+									'timestamp' => $date->getTimestamp(),
+									'line' => $log,
+									'app' => "TCCSS Processor",
+									'level' => "INFO"
+								]
 							]
-						]
-					];
+						];
+					}
+					$hostname = str_replace( ".", "_", $_SERVER['SERVER_NAME'] );
+					$curl = curl_init();
+					curl_setopt($curl, CURLOPT_URL, 'https://logs.logdna.com/logs/ingest?hostname=' . urlencode( $hostname ) . '&ip=' . urlencode( $_SERVER['SERVER_ADDR'] ) . '&now=' . time() );
+					curl_setopt($curl, CURLOPT_USERPWD, '78c595f764c3d074085be14685ae3cad' );
+					curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+					curl_setopt($curl, CURLOPT_POST, true);
+					curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode( $json ) );
+					curl_setopt($curl, CURLOPT_HTTPHEADER, ['Content-Type: application/json'] );
+					curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+					$resp = curl_exec($curl);
+					curl_close($curl);
 				}
-				
-				$hostname = str_replace( ".", "_", $_SERVER['SERVER_NAME'] );
-				$curl = curl_init();
-				curl_setopt($curl, CURLOPT_URL, 'https://logs.logdna.com/logs/ingest?hostname=' . urlencode( $hostname ) . '&ip=' . urlencode( $_SERVER['SERVER_ADDR'] ) . '&now=' . time() );
-				curl_setopt($curl, CURLOPT_USERPWD, '78c595f764c3d074085be14685ae3cad' );
-				curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-				curl_setopt($curl, CURLOPT_POST, true);
-				curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode( $json ) );
-				curl_setopt($curl, CURLOPT_HTTPHEADER, ['Content-Type: application/json'] );
-				curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-				$resp = curl_exec($curl);
-				curl_close($curl);
 				
 			}
 		}
