@@ -9,6 +9,10 @@ class TCCSS_Queue {
 	 * @return  void
 	 */
 	public function __construct() {
+		if ( get_post_status() != 'publish' ) {
+			tccss()->log( 'Published, live pages only.' );
+			return;
+		}
 		if ( ! tccss()->options()->get( 'api_key' ) ) {
 			tccss()->log( 'API key not supplied.' );
 			return;

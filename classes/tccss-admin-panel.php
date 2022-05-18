@@ -122,6 +122,7 @@ class TCCSS_AdminPanel {
 		
 		$the_query = new WP_Query( [
 			'post_type' => 'any',
+			'posts_per_page' => -1,
 			'post_status' => 'publish',
 			'meta_query' => [
 				'relation' => 'AND',

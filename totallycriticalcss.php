@@ -3,7 +3,7 @@
  * Plugin Name:  Totally Critical CSS
  * Plugin URI:   https://totallycriticalcss.com/
  * Description:  Totally fast and critical CSS.
- * Version:      1.0.0
+ * Version:      1.0.1
  * Author:       Compiled Rogue
  * Author URI:   https://compiledrogue.com
  * License:      GPL2 or later
@@ -32,7 +32,7 @@ if ( ! class_exists( 'TotallyCriticalCSS' ) ) :
 	class TotallyCriticalCSS {
 		
 		/** @var string The plugin version number. */
-		var $version = '1.0.0';
+		var $version = '1.0.1';
 		
 		/** @var string Shortcuts. */
 		var $plugin;
