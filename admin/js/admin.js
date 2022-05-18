@@ -113,7 +113,6 @@
 					tccssadmin.find( '.adder-form-cancel' ).click();
 					tccssadmin.find( '.adder-form input' ).val( '' );
 					createCustomRouteTable( response.data );
-					console.log(response);
 				}
 			} );
 			e.preventDefault();
@@ -132,7 +131,6 @@
 				success: function( response ) {
 					$( '#custom_routes' ).removeClass( 'loading' );
 					createCustomRouteTable( response.data );
-					console.log(response);
 				}
 			} );
 			e.preventDefault();
@@ -169,7 +167,6 @@
 					tccssadmin.find( '.adder-form-cancel' ).click();
 					tccssadmin.find( '.adder-form input' ).val( '' );
 					createIgnoreRouteTable( response.data );
-					console.log(response);
 				}
 			} );
 			e.preventDefault();
@@ -188,9 +185,77 @@
 				success: function( response ) {
 					$( '#ignore_routes' ).removeClass( 'loading' );
 					createIgnoreRouteTable( response.data );
-					console.log(response);
 				}
 			} );
+			e.preventDefault();
+			return false;
+		} );
+		
+		// status page
+		
+		function createStatusTable ( data ) {
+			tccssadmin.find( '#status tbody tr:not( .seed )' ).remove();
+			var seed = tccssadmin.find( '#status tbody tr.seed' );
+			for ( var url in data ) {
+				if ( data.hasOwnProperty( url ) ) {
+					var obj = data[url];
+					var clone = seed.clone( true );
+					var icon = '<span style="color:grey" class="dashicons dashicons-marker"></span>';
+					if ( obj.state == 'processing' ) {
+						icon = '<span style="color:grey" class="dashicons dashicons-clock"></span>';
+					} else if ( obj.state == 'generated' ) {
+						icon = '<span style="color:green" class="dashicons dashicons-yes-alt"></span>';
+					} else if ( obj.state == 'error' ) {
+						icon = '<span style="color:red" class="dashicons dashicons-dismiss"></span>';
+					}
+					clone.removeClass( 'seed' );
+					clone.find( '.state' ).html( icon );
+					clone.find( '.route' ).html( '<a href="' + url + '" target="_blank">' + url + '</a>' );
+					clone.find( '.button-delete' ).attr( 'data-type', obj.type );
+					clone.find( '.button-delete' ).data( 'type', obj.type );
+					clone.find( '.button-delete' ).attr( 'data-route', obj.route_or_id );
+					clone.find( '.button-delete' ).data( 'route', obj.route_or_id );
+					tccssadmin.find( '#status tbody' ).append( clone );
+				}
+			}
+		}
+		
+		function renderStatusPage () {
+			$( '#status' ).addClass( 'loading' );
+			$.ajax( {
+				method: 'POST',
+				url: ajaxURL,
+				data:{
+					action: 'totallycriticalcss_get_status'
+				},
+				success: function( response ) {
+					$( '#status' ).removeClass( 'loading' );
+					createStatusTable( response.data );
+				}
+			} );
+		}
+		
+		tccssadmin.find( '.status-invalidate' ).click( function( e ) {
+			$( '#status' ).addClass( 'loading' );
+			$.ajax( {
+				method: 'POST',
+				url: ajaxURL,
+				data:{
+					action: 'totallycriticalcss_status_invalidate',
+					route_or_id: $( this ).data( 'route' ),
+					type: $( this ).data( 'type' ),
+				},
+				success: function( response ) {
+					$( '#status' ).removeClass( 'loading' );
+					createStatusTable( response.data );
+				}
+			} );
+			e.preventDefault();
+			return false;
+		} );
+		
+		tccssadmin.find( '.status-refresh' ).click( function( e ) {
+			renderStatusPage();
 			e.preventDefault();
 			return false;
 		} );
@@ -262,6 +327,9 @@
 				}
 			} );
 			window.location.hash = hash;
+			if ( hash == 'status' ) {
+				renderStatusPage();
+			}
 		}
 		
 		tabs.click( function( e ) {

@@ -32,6 +32,7 @@ $sheetlist     = ! $totallycriticalcss_simplemode ? tccss()->sheetlist()->get_cu
 				<li class="<?php echo $totallycriticalcss_simplemode == true ? 'disabled' : ''; ?>" data-tab="stylesheets"><?php esc_html_e( 'Stylesheets', 'tccss' ); ?></li>
 				<li class="<?php echo $totallycriticalcss_simplemode == true ? 'disabled' : ''; ?>" data-tab="cpt"><?php esc_html_e( 'Custom Post Types', 'tccss' ); ?></li>
 				<li class="<?php echo $totallycriticalcss_simplemode == true ? 'disabled' : ''; ?>" data-tab="routes"><?php esc_html_e( 'Routes', 'tccss' ); ?></li>
+				<li data-tab="status"><?php esc_html_e( 'Status', 'tccss' ); ?></li>
 			</ul>
 
 			<ul class="tab__content">
@@ -77,9 +78,10 @@ $sheetlist     = ! $totallycriticalcss_simplemode ? tccss()->sheetlist()->get_cu
 								<label for="simplemode"><?php esc_html_e( 'Simple Mode', 'tccss' ); ?></label>
 							</div>
 							<div class="desc">
-								<?php esc_html_e( 'Just set it and forget it.  Totally Critical CSS will work passively in the background on all pages.  We\'ll automatically dequeue all styles to the page footer and process Critical CSS in the head.', 'tccss' ); ?>
+								<?php esc_html_e( 'Just set it and forget it.  Totally Critical CSS will work passively in the background on all pages and dynamic routes.  We\'ll automatically dequeue all styles to the page footer and process Critical CSS in the head.', 'tccss' ); ?>
 								<br />
-								<?php esc_html_e( 'If you look at the page source, you may not see the generated code -- use an Incognito browser to check after any page saves.  Totally Critical CSS will mostly be invisible.', 'tccss' ); ?>
+								<br />
+								<?php esc_html_e( 'It all happens in the background seamlessly, using WP CRON and things gets queued up in our API as well.  Totally Critical CSS will mostly be invisible.', 'tccss' ); ?>
 							</div>
 						</div>
 						
@@ -401,6 +403,45 @@ $sheetlist     = ! $totallycriticalcss_simplemode ? tccss()->sheetlist()->get_cu
 				</li>
 				
 				<?php } ?>
+				
+				<li id="tab-status">
+					<div class="content__wrapper">
+						
+						<div id="status" class="ajax-group">
+							
+							<div class="screen" style="background-image: url( <?php echo esc_url( get_admin_url() . 'images/loading.gif' ); ?> );"></div>
+						
+							<table>
+								<thead>
+									<th>
+										<td>
+											<span class='handle'><?php esc_html_e( 'Route', 'tccss' ); ?></span>
+										</td>
+									</th>
+								</thead>
+								<tbody>
+									<tr class="seed">
+										<td class="icon">
+											<span class='state'></span>
+										</td>
+										<td>
+											<span class='route'></span>
+										</td>
+										<td class="actions">
+											<button class="button button-delete status-invalidate" data-type="" data-route="">
+												<span class="dashicons dashicons-update"></span>
+											</button>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+							
+							<button class="button button-primary status-refresh"><?php esc_html_e( 'Refresh', 'tccss' ); ?></button>
+						
+						</div>
+						
+					</div>
+				</li>
 				
 			</ul>
 		</section>
