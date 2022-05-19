@@ -79,28 +79,37 @@ class TCCSS_Post {
 	public function metabox_callback( $post ) {
 		
 		$invalidate  = tccss()->options()->getpostmeta( $post->ID, 'invalidate' );
+		$retry       = tccss()->options()->getpostmeta( $post->ID, 'retry' );
+		$retry_at    = tccss()->options()->getpostmeta( $post->ID, 'retry_at' );
 		$criticalcss = tccss()->options()->getpostmeta( $post->ID, 'criticalcss', null );
 		$adminmode   = tccss()->options()->get( 'adminmode' );
 		
 		$prefix = __( 'Totally Critical CSS', 'tccss' );
-		$color  = 'red';
+		$color  = 'black';
 		$status = __( 'Not Generated', 'tccss' );
 		
-		if ( $invalidate ) {
+		if ( $invalidate == 'loading' ) {
 			$color  = 'green';
 			$status = 'Pending';
 		} else {
-			if ( $criticalcss ) {
-				if ( $criticalcss->success === true ) {
-					$color  = 'green';
-					$status = __( 'Generated', 'tccss' );
-				} else if ( $criticalcss->success === false ) {
-					$prefix = __( 'Error', 'tccss' );
-					$color  = 'red';
-					$status = $criticalcss->message;
-				} else {
-					$prefix = __( 'Error', 'tccss' );
-					$status = __( 'Invalid Server Response', 'tccss' );
+			if ( $retry ) {
+				$prefix = __( 'Requeued', 'tccss' );
+				$color  = 'green';
+				$status = __( 'Reattempt', 'tccss' ) . ' #' . $retry . ' ' . __( 'in', 'tccss' ) . ' ' . ( $retry_at - time() ) . 's' ;
+			} else {
+				if ( $criticalcss ) {
+					if ( $criticalcss->success === true ) {
+						$color  = 'green';
+						$status = __( 'Generated', 'tccss' );
+					} else if ( $criticalcss->success === false ) {
+						$prefix = __( 'Error', 'tccss' );
+						$color  = 'red';
+						$status = $criticalcss->message;
+					} else {
+						$prefix = __( 'Error', 'tccss' );
+						$color  = 'red';
+						$status = __( 'Invalid Server Response', 'tccss' );
+					}
 				}
 			}
 		}

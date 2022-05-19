@@ -74,6 +74,36 @@ class TCCSS_AdminPanel {
 	}
 	
 	/**
+	 * get_status_string
+	 *
+	 * Get a status based on meta
+	 *
+	 * @param   void
+	 * @return  void
+	 */
+	public function get_status_string( $invalidate, $retry, $criticalcss ) {
+		$state = 'pending';
+		if ( $invalidate == 'loading' ) {
+			$state = 'processing';
+		} else {
+			if ( $retry ) {
+				$state = 'retry';
+			} else {
+				if ( $criticalcss ) {
+					if ( $criticalcss->success === true ) {
+						$state = 'generated';
+					} else if ( $criticalcss->success === false ) {
+						$state = 'error';
+					} else {
+						$state = 'error';
+					}
+				}
+			}
+		}
+		return $state;
+	}
+	
+	/**
 	 * get_status
 	 *
 	 * Get a list of all pages and routes
@@ -87,32 +117,18 @@ class TCCSS_AdminPanel {
 		
 		$status = [];
 		
+		// pull the routes from the options table
 		$records = $wpdb->get_results( "SELECT * FROM {$wpdb->options} WHERE `option_name` LIKE 'totallycriticalcss_route_%'" );
 		foreach ( $records as $record ) {
-			$route = explode( "_", $record->option_name );
-			$route = array_slice( $route, 2 );
-			$route = implode( "/", $route );
+			$route         = explode( "_", $record->option_name );
+			$route         = array_slice( $route, 2 );
+			$route         = implode( "/", $route );
 			$route_display = wp_parse_url( home_url( $route ), PHP_URL_PATH );
-			$data = unserialize( $record->option_value );
-			$state = 'pending';
-			if ( isset( $data['invalidate'] ) ) {
-				if ( $data['invalidate'] == 'loading' ) {
-					$state = 'processing';
-				} else {
-					if ( isset( $data['criticalcss'] ) ) {
-						$criticalcss = $data['criticalcss'];
-						if ( $criticalcss ) {
-							if ( $criticalcss->success === true ) {
-								$state = 'generated';
-							} else if ( $criticalcss->success === false ) {
-								$state = 'error';
-							} else {
-								$state = 'error';
-							}
-						}
-					}
-				}
-			}
+			$data          = unserialize( $record->option_value );
+			$invalidate    = isset( $data['invalidate'] ) ? $data['invalidate'] : false;
+			$retry         = isset( $data['retry'] ) ? $data['retry'] : false;
+			$criticalcss   = isset( $data['criticalcss'] ) ? $data['criticalcss'] : false;
+			$state         = $this->get_status_string( $invalidate, $retry, $criticalcss );
 			$status[$route_display] = [
 				'route_or_id' => $route,
 				'type' => 'route',
@@ -120,39 +136,27 @@ class TCCSS_AdminPanel {
 			];
 		}
 		
+		// pull the routes from the posts table
 		$the_query = new WP_Query( [
-			'post_type' => 'any',
-			'posts_per_page' => -1,
-			'post_status' => 'publish',
-			'meta_query' => [
-				'relation' => 'AND',
+			'post_type'         => 'any',
+			'posts_per_page'    => -1,
+			'post_status'       => 'publish',
+			'meta_query'        => [
+				'relation'     => 'AND',
 				[
-					'key' => 'totallycriticalcss_invalidate',
+					'key'     => 'totallycriticalcss_invalidate',
 					'compare' => 'EXISTS'
 				],
 			]
 		] );
 		if ( $the_query->have_posts() ) {
-			while ( $the_query->have_posts() ) {
-				$the_query->the_post();
+			while ( $the_query->have_posts() ) { $the_query->the_post();
 				$route_display = get_permalink( get_the_ID() );
 				$route_display = wp_parse_url( $route_display, PHP_URL_PATH );
-				$invalidate = tccss()->options()->getpostmeta( get_the_ID(), 'invalidate' );
-				$criticalcss = tccss()->options()->getpostmeta( get_the_ID(), 'criticalcss', null );
-				$state = 'pending';
-				if ( $invalidate == 'loading' ) {
-					$state = 'processing';
-				} else {
-					if ( $criticalcss ) {
-						if ( $criticalcss->success === true ) {
-							$state = 'generated';
-						} else if ( $criticalcss->success === false ) {
-							$state = 'error';
-						} else {
-							$state = 'error';
-						}
-					}
-				}
+				$invalidate    = tccss()->options()->getpostmeta( get_the_ID(), 'invalidate' );
+				$criticalcss   = tccss()->options()->getpostmeta( get_the_ID(), 'criticalcss', null );
+				$retry         = tccss()->options()->getpostmeta( get_the_ID(), 'retry' );
+				$state         = $this->get_status_string( $invalidate, $retry, $criticalcss );
 				$status[$route_display] = [
 					'route_or_id' => get_the_ID(),
 					'type' => 'single',

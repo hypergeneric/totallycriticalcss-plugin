@@ -32,17 +32,10 @@ class TCCSS_Plugin {
 	 */
 	public static function uninstall() {
 		
-		delete_option( 'totallycriticalcss_simplemode' );
-		delete_option( 'totallycriticalcss_show_metaboxes' );
-		delete_option( 'totallycriticalcss_adminmode' );
-		delete_option( 'totallycriticalcss_api_key' );
-		delete_option( 'totallycriticalcss_selected_cpt' );
-		delete_option( 'totallycriticalcss_custom_dequeue' );
-		delete_option( 'totallycriticalcss_custom_routes' );
-		delete_option( 'totallycriticalcss_ignore_routes' );
-		delete_option( 'totallycriticalcss_selected_styles' );
-		delete_option( 'totallycriticalcss_viewport_width' );
-		delete_option( 'totallycriticalcss_viewport_height' );
+		global $wpdb;
+		
+		// kill the route entries in options
+		$wpdb->query( "DELETE FROM {$wpdb->options} WHERE `option_name` LIKE 'totallycriticalcss_%'" );
 		
 		tccss()->plugin()->clear_tccss_data();
 
@@ -81,9 +74,7 @@ class TCCSS_Plugin {
 		global $wpdb;
 		
 		// kill all the post meta values
-		$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE `meta_key` = 'totallycriticalcss_criticalcss'" );
-		$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE `meta_key` = 'totallycriticalcss_invalidate'" );
-		$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE `meta_key` = 'totallycriticalcss_checksum'" );
+		$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE `meta_key` LIKE 'totallycriticalcss_%'" );
 		
 		// kill the route entries in options
 		$wpdb->query( "DELETE FROM {$wpdb->options} WHERE `option_name` LIKE 'totallycriticalcss_route_%'" );

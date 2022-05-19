@@ -9,7 +9,7 @@ class TCCSS_Processor {
 	 * @return  void
 	 */
 	public function __construct() {
-		add_action( 'process_critical_css', array( $this, 'process_critical_css' ), 10, 2 );
+		add_action( 'process_critical_css', array( $this, 'process_critical_css' ), 10, 3 );
 	}
 	
 	/**
@@ -23,11 +23,14 @@ class TCCSS_Processor {
 	public function processed() {
 		
 		// only do the dequeueing / enqueuing if the data is live
-		$data = $this->get_data();
-		$invalidate = $this->get_invalidate();
+		$type        = $this->get_route_type();
+		$route_or_id = $this->get_route_or_id();
+		$data        = tccss()->options()->getmeta( $type, $route_or_id, 'criticalcss' );
+		$invalidate  = tccss()->options()->getmeta( $type, $route_or_id, 'invalidate' );
+		$retry       = tccss()->options()->getmeta( $type, $route_or_id, 'retry' );
 		
 		// data does not exist, or data exists and did not succees, or invalidation flag is set
-		if ( ! $data || $data->success !== true || $invalidate == 'loading' ) {
+		if ( ! $data || $data->success !== true || $invalidate == 'loading' || $retry > 0 ) {
 			return false;
 		}
 		
@@ -45,55 +48,53 @@ class TCCSS_Processor {
 	 */
 	public function validate() {
 		
-		$invalidate = $this->get_invalidate();
-		$checksum   = $this->get_checksum();
+		$type         = $this->get_route_type();
+		$route_or_id  = $this->get_route_or_id();
 		
-		tccss()->log( 'Validate url: ' . ( is_archive() ? $this->get_request_uri() : get_the_ID() . ", " . get_permalink( get_the_ID() ) ) );
-		tccss()->log( 'Current invalidate flag: ' . ( $invalidate ? 'true' : 'false' ) );
+		$route_actual = $type == 'route' ? home_url( $route_or_id ) : get_permalink( $route_or_id );
+		$route_label  = $route_actual;
+		$route_label  = $type == 'route' ? $route_label : $route_or_id . ', ' . $route_label;
+		
+		$invalidate   = tccss()->options()->getmeta( $type, $route_or_id, 'invalidate' );
+		$checksum     = tccss()->options()->getmeta( $type, $route_or_id, 'checksum' );
+		$retry        = tccss()->options()->getmeta( $type, $route_or_id, 'retry' );
+		$retry_at     = tccss()->options()->getmeta( $type, $route_or_id, 'retry_at' );
+		$sheetlist    = tccss()->sheetlist()->get_checksum();
+		
+		tccss()->log( 'Validate url: ' . $route_label );
+		tccss()->log( 'Current invalidate flag: ' . ( $invalidate ? $invalidate : 'false' ) );
 		tccss()->log( 'Checksum: ' . ( $checksum ? $checksum : 'false' ) );
-		tccss()->log( 'Sheetlist: ' . ( tccss()->sheetlist()->get_checksum() ? tccss()->sheetlist()->get_checksum() : 'false' ) );
+		tccss()->log( 'Sheetlist: ' . ( $sheetlist ? $sheetlist : 'false' ) );
+		
+		// already running? skip it
+		if ( $invalidate == 'loading' ) {
+			tccss()->log( 'Invalidation stopped.  Already Loading.' );
+			return;
+		}
 		
 		// always check to see if the checksum is different that the current one
 		// or if there is no checksum ( meaning it's never been run )
 		// if so, run it again
-		if ( $checksum != tccss()->sheetlist()->get_checksum() || ! $checksum ) {
+		if ( $checksum != $sheetlist || ! $checksum ) {
 			$invalidate = true;
+		}
+		
+		// if we are about to run it, check to see if it's a retry
+		if ( $invalidate && $retry ) {
+			tccss()->log( 'Retry Attempt: ' . $retry );
+			if ( time() < $retry_at ) {
+				tccss()->log( 'Retry At: ' . $retry_at . ", Current time: " . time() . ' ( ' . ( $retry_at - time() ) . 's )' );
+				$invalidate = false;
+			}
 		}
 		
 		tccss()->log( 'Final invalidate flag: ' . ( $invalidate ? 'true' : 'false' ) );
 		
-		// get the critical css
-		if ( $invalidate ) {
-			$this->lets_get_critical();
-		}
-		
-	}
-	
-	/**
-	 * archive
-	 *
-	 * Process an archive page.
-	 *
-	 * @param   string $route The full url to generate.
-	 * @return  void
-	 */
-	public function lets_get_critical() {
-		
-		$type         = is_archive() ? 'route' : 'single';
-		$route_or_id  = $type == 'route' ? $this->get_request_uri() : get_the_ID();
-		$route_actual = $this->get_request_uri();
-		$route_label  = $route_actual == '/' ? $route_actual : '/' . $route_actual . '/';
-		$route_label  = $type == 'route' ? $route_label : get_the_ID() . ', ' . $route_label;
-		
-		tccss()->log( 'lets_get_critical: ' . $route_label );
-		
-		// already running? skip it
-		$invalidate = tccss()->options()->getmeta( $type, $route_or_id, 'invalidate' );
-		if ( $invalidate == 'loading' ) {
-			tccss()->log( 'lets_get_critical: ' . $route_label . ' stopped.  Already Loading.' );
+		// if not invalidated, stop right here.
+		if ( ! $invalidate ) {
 			return;
 		}
-		
+
 		// pull data we need
 		$simplemode    = tccss()->options()->get( 'simplemode' );
 		$custom_routes = tccss()->options()->get( 'custom_routes', [] );
@@ -103,7 +104,7 @@ class TCCSS_Processor {
 		foreach ( $ignore_routes as $ignore_route ) {
 			$ignore = $this->url_matches( $ignore_route, $route_actual );
 			if ( $ignore ) {
-				tccss()->log( 'lets_get_critical: ' . $route_label . ' stopped.  Ignored.' );
+				tccss()->log( 'Invalidation stopped.  Route ' . $route_actual . ' Ignored.' );
 				return;
 			}
 		}
@@ -120,17 +121,19 @@ class TCCSS_Processor {
 				}
 			}
 			if ( $process_route == false ) {
-				tccss()->log( 'lets_get_critical: ' . $route_label . ' stopped.  Route not processed.' );
+				tccss()->log( 'Invalidation stopped.  Route ' . $route_actual . ' not processed.' );
 				return;
 			}
 		}
 		
 		// set the flag to show we are loading
-		tccss()->log( 'lets_get_critical: ' . $route_label . ' loading' );
+		$invalidate_hash = md5( time() . $route_or_id );
+		tccss()->log( 'Invalidation loading ' .$invalidate_hash . '...' );
 		tccss()->options()->setmeta( $type, $route_or_id, 'invalidate', 'loading' );
+		tccss()->options()->setmeta( $type, $route_or_id, 'invalidate_hash', $invalidate_hash );
 		
 		// pull the critical css
-		wp_schedule_single_event( time() + 30, 'process_critical_css', [ $type, $route_or_id ] );
+		wp_schedule_single_event( time() + 30, 'process_critical_css', [ $type, $route_or_id, $invalidate_hash ] );
 		
 	}
 	
@@ -143,11 +146,16 @@ class TCCSS_Processor {
 	 * @param   string $route_or_id The page route or id if it's single
 	 * @return  string The json string body from the response.
 	 */
-	public function process_critical_css( $type, $route_or_id ) {
+	public function process_critical_css( $type, $route_or_id, $invalidate_hash ) {
 		
 		$route_actual = $type == 'route' ? home_url( $route_or_id ) : get_permalink( $route_or_id );
 		$route_label  = $route_actual;
-		$route_label  = $type == 'route' ? $route_label : get_the_ID() . ', ' . $route_label;
+		$route_label  = $type == 'route' ? $route_label : $route_or_id . ', ' . $route_label;
+		
+		if ( $invalidate_hash != tccss()->options()->getmeta( $type, $route_or_id, 'invalidate_hash' ) ) {
+			tccss()->log( 'Invalidation hash ' . $invalidate_hash . ' does not exist.  Ignoring CRON call' );
+			return;
+		}
 		
 		// do the actual call
 		$response_data = $this->get_critical_css( $route_actual );
@@ -157,11 +165,18 @@ class TCCSS_Processor {
 		// save the global checksum at this point in time to check in the future
 		if ( $json_data->success === true ) {
 			tccss()->options()->setmeta( $type, $route_or_id, 'checksum', tccss()->sheetlist()->get_checksum() );
+			tccss()->log( 'Critical CSS for ' . $route_label . ' loaded successfully!' );
+		} else {
+			$retry = tccss()->options()->getmeta( $type, $route_or_id, 'retry', 0 );
+			$retry += 1;
+			tccss()->options()->setmeta( $type, $route_or_id, 'retry', $retry );
+			tccss()->options()->setmeta( $type, $route_or_id, 'retry_at', time() + ( $retry * 90 ) );
+			tccss()->log( 'Critical CSS for ' . $route_label . ' failed! Retry: ' . $retry );
 		}
 		
-		// clear out any invalidation flag
-		tccss()->log( 'process_critical_css: ' . $route_label . ' loaded!' );
+		// clear out any invalidation flags
 		tccss()->options()->setmeta( $type, $route_or_id, 'invalidate', false );
+		tccss()->options()->setmeta( $type, $route_or_id, 'invalidate_hash', false );
 		
 	}
 	
@@ -224,6 +239,7 @@ class TCCSS_Processor {
 		if ( empty( $request_uri ) && isset( $_SERVER['REQUEST_URI'] ) ) {
 			$request_uri = filter_var( $_SERVER['REQUEST_URI'], FILTER_SANITIZE_URL, $options );
 		}
+		$request_uri = parse_url( $request_uri, PHP_URL_PATH );
 		if ( $request_uri !== '/' ) {
 			$request_uri = trim( $request_uri, '/' );
 		}
@@ -250,34 +266,34 @@ class TCCSS_Processor {
 	}
 	
 	/**
-	 * get_checksum
+	 * get_route_or_id
 	 *
 	 * Return the checksum.
 	 *
 	 * @param   void
-	 * @return  string The saved checksum.
+	 * @return  mixed The route or ID.
 	 */
-	public function get_checksum() {
+	public function get_route_or_id() {
 		if ( is_archive() ) {
-			return tccss()->options()->getroutemeta( $this->get_request_uri(), 'checksum');
+			return $this->get_request_uri();
 		} else {
-			return tccss()->options()->getpostmeta( get_the_ID(), 'checksum' );
+			return get_the_ID();
 		}
 	}
 	
 	/**
-	 * get_invalidate
+	 * get_route_type
 	 *
-	 * Return the validation token.
+	 * Return the checksum.
 	 *
 	 * @param   void
-	 * @return  mixed The saved validation token.
+	 * @return  string The route type.
 	 */
-	public function get_invalidate() {
+	public function get_route_type() {
 		if ( is_archive() ) {
-			return tccss()->options()->getroutemeta( $this->get_request_uri(), 'invalidate');
+			return 'route';
 		} else {
-			return tccss()->options()->getpostmeta( get_the_ID(), 'invalidate' );
+			return 'single';
 		}
 	}
 	
@@ -290,11 +306,9 @@ class TCCSS_Processor {
 	 * @return  object The saved critical css data.
 	 */
 	public function get_data() {
-		if ( is_archive() ) {
-			return tccss()->options()->getroutemeta( $this->get_request_uri(), 'criticalcss');
-		} else {
-			return tccss()->options()->getpostmeta( get_the_ID(), 'criticalcss' );
-		}
+		$type        = $this->get_route_type();
+		$route_or_id = $this->get_route_or_id();
+		$data        = tccss()->options()->getmeta( $type, $route_or_id, 'criticalcss' );
 	}
 
 }

@@ -203,6 +203,8 @@
 					var icon = '<span style="color:grey" class="dashicons dashicons-marker"></span>';
 					if ( obj.state == 'processing' ) {
 						icon = '<span style="color:grey" class="dashicons dashicons-clock"></span>';
+					} else if ( obj.state == 'retry' ) {
+						icon = '<span style="color:grey" class="dashicons dashicons-update"></span>';
 					} else if ( obj.state == 'generated' ) {
 						icon = '<span style="color:green" class="dashicons dashicons-yes-alt"></span>';
 					} else if ( obj.state == 'error' ) {
