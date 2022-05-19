@@ -308,7 +308,7 @@ class TCCSS_Processor {
 	public function get_data() {
 		$type        = $this->get_route_type();
 		$route_or_id = $this->get_route_or_id();
-		$data        = tccss()->options()->getmeta( $type, $route_or_id, 'criticalcss' );
+		return tccss()->options()->getmeta( $type, $route_or_id, 'criticalcss' );
 	}
 
 }
