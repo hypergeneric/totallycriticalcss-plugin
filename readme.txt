@@ -15,5 +15,8 @@ Our plugin does one thing and it does it really well - generate critical CSS. It
 
 == Changelog ==
 
+= 1.0.3 =
+Refactored for WP, inputs, escaping, etc.
+
 = 1.0.2 =
 Initial release.
