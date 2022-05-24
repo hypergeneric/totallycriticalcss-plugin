@@ -126,15 +126,15 @@ class TCCSS_Post {
 			<table id="tccsstable">
 				<tr>
 					<td><strong><?php esc_html_e( 'Success', 'tccss' ); ?></strong></td>
-					<td><?php echo $criticalcss->success ? 'true' : 'false'; ?></td>
+					<td><?php echo esc_html( $criticalcss->success ? 'true' : 'false' ); ?></td>
 				</tr>
 				<tr>
 					<td><strong><?php esc_html_e( 'Message', 'tccss' ); ?></strong></td>
-					<td><?php echo $criticalcss->message; ?></td>
+					<td><?php echo esc_html( $criticalcss->message ); ?></td>
 				</tr>
 				<tr>
 					<td><strong><?php esc_html_e( 'Size', 'tccss' ); ?></strong></td>
-					<td><?php echo $this->formatBytes( strlen( $criticalcss->data->css ) ); ?></td>
+					<td><?php echo esc_html( $this->formatBytes( strlen( $criticalcss->data->css ) ) ); ?></td>
 				</tr>
 			</table>
 		<?php

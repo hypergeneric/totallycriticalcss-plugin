@@ -32,7 +32,7 @@ class TCCSS_Queue {
 	public function handle_critical() {
 		
 		// if the preview flag is enabled, ignore the switcheroo
-		$preview = isset( $_GET['totallycriticalcss'] ) ? $_GET['totallycriticalcss'] : false;
+		$preview = filter_input( INPUT_GET, 'totallycriticalcss', FILTER_SANITIZE_STRING );
 		if ( $preview == 'preview' ) {
 			return;
 		}
@@ -52,7 +52,8 @@ class TCCSS_Queue {
 		$criticalcss = tccss()->processor()->get_data();
 		foreach ( $styles as $handle => $url ) {
 			if ( $adminmode == true && $is_admin ) {
-				echo '<!-- TCSSS: dequeue: ( ' . $handle . ' ): ' . $url . ' -->' . "\n";
+				?><!-- TCSSS: dequeue: ( <?php echo esc_html( $handle ); ?> ): <?php echo esc_url( $url ); ?> -->
+<?php
 			} else {
 				wp_dequeue_style( $handle );
 			}
@@ -60,9 +61,11 @@ class TCCSS_Queue {
 		
 		// dump critical into head
 		if ( $adminmode == true && $is_admin ) {
-			echo '<!-- TCSSS: data: ' . print_r( $criticalcss, true ) . ' -->' . "\n";
+			// do nothing
 		} else {
-			echo '<!-- TCSSS --><style>' . $criticalcss->data->css . '</style><!-- /TCSSS -->' . "\n";
+			wp_register_style( 'tccss-head', false );
+			wp_enqueue_style( 'tccss-head' );
+			wp_add_inline_style( 'tccss-head', $criticalcss->data->css );
 		}
 		
 		// add it to the footer instead
@@ -74,10 +77,11 @@ class TCCSS_Queue {
 			$styles    = tccss()->sheetlist()->get_selected();
 			foreach ( $styles as $handle => $url ) {
 				if ( $adminmode == true && $is_admin ) {
-					echo '<!-- TCSSS: enqueue: ( ' . $handle . ' ): ' . $url . ' -->' . "\n";
+					?><!-- TCSSS: enqueue: ( <?php echo esc_html( $handle ); ?> ): <?php echo esc_url( $url ); ?> -->
+<?php
 				} else {
-					echo '<link rel="preload" href="' . $url . '" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">';
-					echo '<noscript><link rel="stylesheet" href="' . $url . '"></noscript>';
+					?><link rel="preload" href="<?php echo esc_url( $url ); ?>" as="style" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="<?php echo esc_url( $url ); ?>"></noscript>
+<?php
 				}
 			}
 			

@@ -51,6 +51,7 @@ class TCCSS_Processor {
 		$type         = $this->get_route_type();
 		$route_or_id  = $this->get_route_or_id();
 		
+		$request_uri  = $this->get_request_uri();
 		$route_actual = $type == 'route' ? home_url( $route_or_id ) : get_permalink( $route_or_id );
 		$route_label  = $route_actual;
 		$route_label  = $type == 'route' ? $route_label : $route_or_id . ', ' . $route_label;
@@ -102,9 +103,9 @@ class TCCSS_Processor {
 		
 		// ignore?
 		foreach ( $ignore_routes as $ignore_route ) {
-			$ignore = $this->url_matches( $ignore_route, $route_actual );
+			$ignore = $this->url_matches( $ignore_route, $request_uri );
 			if ( $ignore ) {
-				tccss()->log( 'Invalidation stopped.  Route ' . $route_actual . ' Ignored.' );
+				tccss()->log( 'Invalidation stopped.  Route ' . $request_uri . ' Ignored.' );
 				return;
 			}
 		}
@@ -114,7 +115,7 @@ class TCCSS_Processor {
 			$process_route = $simplemode;
 			if ( $process_route == false ) {
 				foreach ( $custom_routes as $custom_route ) {
-					$process = $this->url_matches( $custom_route, $route_actual );
+					$process = $this->url_matches( $custom_route, $request_uri );
 					if ( $process == true && $process_route == false ) {
 						$process_route = true;
 					}
@@ -249,11 +250,17 @@ class TCCSS_Processor {
 	/**
 	 * Gets the quest uri, with fallback for super global
 	 *
-	 * @return string
+	 * @return boolean
 	 */
 	function url_matches( $search, $url ) {
-		if ( strtolower( $search ) == strtolower( $url ) ) {
-			return true;
+		if ( $url === '/' ) {
+			if ( $search === $url ) {
+				return true;
+			}
+		} else {
+			if ( stripos( $search, $url ) !== false) {
+				return true;
+			}
 		}
 		$search = str_replace( '`', '\\`', $search );
 		// Suppress warning: a faulty redirect will give a warning and not an exception. So we can't catch it.

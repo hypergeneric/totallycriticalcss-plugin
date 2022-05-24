@@ -35,15 +35,32 @@ class TCCSS_AdminPanel {
 		$literals = [ 'api_key', 'selected_styles', 'selected_cpt', 'viewport_width', 'viewport_height' ];
 		$bools = [ 'simplemode', 'show_metaboxes', 'adminmode' ];
 		
+		$post_clean = filter_input_array( INPUT_POST, [
+			'api_key'         => FILTER_SANITIZE_ENCODED,
+			'viewport_width'  => FILTER_SANITIZE_NUMBER_INT,
+			'viewport_height' => FILTER_SANITIZE_NUMBER_INT,
+			'simplemode'      => FILTER_VALIDATE_BOOLEAN,
+			'show_metaboxes'  => FILTER_VALIDATE_BOOLEAN,
+			'adminmode'       => FILTER_VALIDATE_BOOLEAN,
+			'selected_styles' => [
+				'filter'     => FILTER_SANITIZE_STRING,
+				'flags'      => FILTER_REQUIRE_ARRAY,
+			],
+			'selected_cpt' => [
+				'filter'     => FILTER_SANITIZE_STRING,
+				'flags'      => FILTER_REQUIRE_ARRAY,
+			]
+		] );
+		
 		foreach ( $literals as $key ) {
-			if ( isset( $_POST[ $key ] ) ) {
-				tccss()->options()->set( $key, $_POST[ $key ] );
+			if ( isset( $post_clean[ $key ] ) ) {
+				tccss()->options()->set( $key, $post_clean[ $key ] );
 			}
 		}
 		
 		foreach ( $bools as $key ) {
-			if ( isset( $_POST[ $key ] ) ) {
-				tccss()->options()->set( $key, $_POST[ $key ] == 'true' );
+			if ( isset( $post_clean[ $key ] ) ) {
+				tccss()->options()->set( $key, $post_clean[ $key ] == 'true' );
 			}
 		}
 		
@@ -62,8 +79,8 @@ class TCCSS_AdminPanel {
 	 */
 	public function status_invalidate() {
 		
-		$route_or_id = $_POST[ 'route_or_id' ];
-		$type = $_POST[ 'type' ];
+		$route_or_id = filter_input( INPUT_POST, 'route_or_id', FILTER_SANITIZE_URL );
+		$type        = filter_input( INPUT_POST, 'type', FILTER_SANITIZE_STRING );
 		
 		tccss()->options()->setmeta( $type, $route_or_id, 'checksum', false );
 		tccss()->options()->setmeta( $type, $route_or_id, 'criticalcss', false );
@@ -180,8 +197,8 @@ class TCCSS_AdminPanel {
 	 */
 	public function add_custum_dequeue() {
 		
-		$form_handle = $_POST[ 'form_handle' ];
-		$form_url = $_POST[ 'form_url' ];
+		$form_handle = filter_input( INPUT_POST, 'form_handle', FILTER_SANITIZE_STRING );
+		$form_url    = filter_input( INPUT_POST, 'form_url', FILTER_SANITIZE_URL );
 		
 		$custom_dequeue = tccss()->options()->get( 'custom_dequeue', [] );
 		$custom_dequeue[$form_handle] = $form_url;
@@ -203,7 +220,7 @@ class TCCSS_AdminPanel {
 	 */
 	public function delete_custum_dequeue() {
 		
-		$form_handle = $_POST[ 'form_handle' ];
+		$form_handle = filter_input( INPUT_POST, 'form_handle', FILTER_SANITIZE_STRING );
 		
 		$custom_dequeue = tccss()->options()->get( 'custom_dequeue', [] );
 		unset( $custom_dequeue[$form_handle] );
@@ -225,7 +242,7 @@ class TCCSS_AdminPanel {
 	 */
 	public function add_custum_route() {
 		
-		$form_url = $_POST[ 'form_url' ];
+		$form_url = filter_input( INPUT_POST, 'form_url', FILTER_SANITIZE_URL );
 		
 		$custom_routes = tccss()->options()->get( 'custom_routes', [] );
 		$custom_routes[] = $form_url;
@@ -247,7 +264,7 @@ class TCCSS_AdminPanel {
 	 */
 	public function delete_custum_route() {
 		
-		$form_url = $_POST[ 'form_url' ];
+		$form_url = filter_input( INPUT_POST, 'form_url', FILTER_SANITIZE_URL );
 		
 		$custom_routes = tccss()->options()->get( 'custom_routes', [] );
 		array_splice( $custom_routes, array_search( $form_url, $custom_routes ), 1) ;
@@ -269,7 +286,7 @@ class TCCSS_AdminPanel {
 	 */
 	public function add_ignore_route() {
 		
-		$form_url = $_POST[ 'form_url' ];
+		$form_url = filter_input( INPUT_POST, 'form_url', FILTER_SANITIZE_URL );
 		
 		$ignore_routes = tccss()->options()->get( 'ignore_routes', [] );
 		$ignore_routes[] = $form_url;
@@ -291,7 +308,7 @@ class TCCSS_AdminPanel {
 	 */
 	public function delete_ignore_route() {
 		
-		$form_url = $_POST[ 'form_url' ];
+		$form_url = filter_input( INPUT_POST, 'form_url', FILTER_SANITIZE_URL );
 		
 		$ignore_routes = tccss()->options()->get( 'ignore_routes', [] );
 		array_splice( $ignore_routes, array_search( $form_url, $ignore_routes ), 1) ;
