@@ -80,8 +80,7 @@ class TCCSS_Queue {
 					?><!-- TCSSS: enqueue: ( <?php echo esc_html( $handle ); ?> ): <?php echo esc_url( $url ); ?> -->
 <?php
 				} else {
-					?><link rel="preload" href="<?php echo esc_url( $url ); ?>" as="style" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="<?php echo esc_url( $url ); ?>"></noscript>
-<?php
+					wp_enqueue_style( $handle, $url, false, null, 'all' );
 				}
 			}
 			
