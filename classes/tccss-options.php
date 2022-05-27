@@ -15,6 +15,35 @@ class TCCSS_Options {
 	}
 	
 	/**
+	 * get_penthouse_types
+	 *
+	 * Add a property to the penthouse json object
+	 *
+	 * @param   void
+	 * @return  array
+	 */
+	public function get_penthouse_types() {
+		return [
+			'width' => [ 'type' => 'number', 'default' => 1400 ],
+			'height' => [ 'type' => 'number', 'default' => 1000 ],
+			'keepLargerMediaQueries' => [ 'type' => 'boolean', 'default' => false ],
+			'forceInclude' => [ 'type' => 'array', 'default' => [] ],
+			'forceExclude' => [ 'type' => 'array', 'default' => [] ],
+			'propertiesToRemove' => [ 'type' => 'array', 'default' => [] ],
+			'timeout' => [ 'type' => 'number', 'default' => 30000 ],
+			'pageLoadSkipTimeout' => [ 'type' => 'number', 'default' => 0 ],
+			'renderWaitTime' => [ 'type' => 'number', 'default' => 100 ],
+			'blockJSRequests' => [ 'type' => 'boolean', 'default' => true ],
+			'maxEmbeddedBase64Length' => [ 'type' => 'number', 'default' => 1000 ],
+			'maxElementsToCheckPerSelector' => [ 'type' => 'number', 'default' => null ],
+			'userAgent' => [ 'type' => 'string', 'default' => '' ],
+			'customPageHeaders' => [ 'type' => 'array', 'default' => [] ],
+			'cookies' => [ 'type' => 'array', 'default' => [] ],
+			'strict' => [ 'type' => 'boolean', 'default' => false ],
+		];
+	}
+	
+	/**
 	 * getmeta
 	 *
 	 * Sugar function to save post meta.

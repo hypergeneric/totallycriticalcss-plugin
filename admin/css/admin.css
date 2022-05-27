@@ -17,7 +17,7 @@ img {
 }
 #admin-view {
 	padding: 40px;
-	max-width: 800px;
+	max-width: 1000px;
 }
 #admin-view-form .field {
 	margin-bottom: 1.5rem;
@@ -34,6 +34,9 @@ img {
 }
 #tccssWrapper * {
 	box-sizing: border-box;
+}
+#tccssWrapper .content__wrapper {
+	max-width: 800px;
 }
 #tccssWrapper .content__wrapper .field label {
 	font-weight: 700;
@@ -118,6 +121,7 @@ img {
 		cursor: pointer;
 		color: #222;
 		margin: 0;
+		max-width: 150px;
 	}
 	#tccssWrapper .tabs > li.disabled {
 		opacity: .25;
@@ -252,3 +256,30 @@ img {
 	#tccssWrapper #custom_dequeue {
 		margin-bottom: 32px;
 	}
+	
+#custom_penthouse .adder-form {
+	display: block !important;
+}
+#custom_penthouse .adder-form .adder-group {
+	display: flex;
+}
+#custom_penthouse .adder-form .adder-group select {
+	height: 40px;
+	border: 1px solid #ddd;
+}
+#penthouse-json {
+	font-family: monospace;
+	display: block;
+	background: none;
+	white-space: pre;
+	-webkit-overflow-scrolling: touch;
+	overflow-x: auto;
+	max-width: 100%;
+	min-width: 100px;
+	padding: 0;
+	border: 2px #ccc solid;
+	background: #f8f8f8;
+	padding: 1rem;
+}
+
+

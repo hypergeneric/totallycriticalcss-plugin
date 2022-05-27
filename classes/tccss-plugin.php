@@ -13,12 +13,10 @@ class TCCSS_Plugin {
 	public static function install() {
 
 		update_option( 'totallycriticalcss_simplemode', true );
-		update_option( 'totallycriticalcss_show_metaboxes', true );
+		update_option( 'totallycriticalcss_show_metaboxes', false );
 		update_option( 'totallycriticalcss_adminmode', false );
 		update_option( 'totallycriticalcss_ignore_routes', [ '^my-account/*' ] );
 		update_option( 'totallycriticalcss_selected_cpt', [ 'page', 'post', 'product' ] );
-		update_option( 'totallycriticalcss_viewport_width', 1400 );
-		update_option( 'totallycriticalcss_viewport_height', 1080 );
 
 	}
 

@@ -19,6 +19,7 @@ class TCCSS_AdminPanel {
 			add_action( 'wp_ajax_totallycriticalcss_delete_ignore_route', array( $this, 'delete_ignore_route' ) );
 			add_action( 'wp_ajax_totallycriticalcss_get_status', array( $this, 'get_status' ) );
 			add_action( 'wp_ajax_totallycriticalcss_status_invalidate', array( $this, 'status_invalidate' ) );
+			add_action( 'wp_ajax_totallycriticalcss_add_penthouse_prop', array( $this, 'add_penthouse_prop' ) );
 		}
 	}
 	
@@ -32,13 +33,8 @@ class TCCSS_AdminPanel {
 	 */
 	public function save_admin_page() {
 		
-		$literals = [ 'api_key', 'selected_styles', 'selected_cpt', 'viewport_width', 'viewport_height' ];
-		$bools = [ 'simplemode', 'show_metaboxes', 'adminmode' ];
-		
-		$post_clean = filter_input_array( INPUT_POST, [
-			'api_key'         => FILTER_SANITIZE_ENCODED,
-			'viewport_width'  => FILTER_SANITIZE_NUMBER_INT,
-			'viewport_height' => FILTER_SANITIZE_NUMBER_INT,
+		$post = filter_input_array( INPUT_POST, [
+			'api_key'         => FILTER_SANITIZE_STRING,
 			'simplemode'      => FILTER_VALIDATE_BOOLEAN,
 			'show_metaboxes'  => FILTER_VALIDATE_BOOLEAN,
 			'adminmode'       => FILTER_VALIDATE_BOOLEAN,
@@ -52,20 +48,85 @@ class TCCSS_AdminPanel {
 			]
 		] );
 		
-		foreach ( $literals as $key ) {
-			if ( isset( $post_clean[ $key ] ) ) {
-				tccss()->options()->set( $key, $post_clean[ $key ] );
-			}
-		}
-		
-		foreach ( $bools as $key ) {
-			if ( isset( $post_clean[ $key ] ) ) {
-				tccss()->options()->set( $key, $post_clean[ $key ] == 'true' );
+		foreach ( $post as $name => $value ) {
+			if ( isset( $post[ $name ] ) ) {
+				tccss()->options()->set( $name, $value );
 			}
 		}
 		
 		tccss()->plugin()->clear_tccss_data();
 		tccss()->sheetlist()->set_checksum();
+		
+	}
+	
+	/**
+	 * add_penthouse_prop
+	 *
+	 * Add a property to the penthouse json object
+	 *
+	 * @param   void
+	 * @return  void
+	 */
+	public function add_penthouse_prop() {
+		
+		$prop_name       = filter_input( INPUT_POST, 'prop_name', FILTER_SANITIZE_STRING );
+		$types           = tccss()->options()->get_penthouse_types();
+		$penthouse_props = tccss()->options()->get( "penthouse_props", [] );
+		
+		if ( ! isset( $types[$prop_name] ) ) {
+			return $penthouse_props;
+		}
+		
+		$prop = $types[$prop_name];
+		
+		switch ( $prop['type'] ) {
+			case 'string':
+				$prop_value = filter_input( INPUT_POST, 'prop_value', FILTER_SANITIZE_STRING );
+				if ( ! $prop_value || $prop_value == '' ) {
+					$prop_value = $prop['default'];
+				}
+				if ( $prop_value == null ) {
+					unset( $penthouse_props[$prop_name] );
+				} else {
+					$penthouse_props[$prop_name] = $prop_value;
+				}
+				break;
+			case 'number':
+				$prop_value = filter_input( INPUT_POST, 'prop_value', FILTER_VALIDATE_INT );
+				if ( ! $prop_value ) {
+					$prop_value = $prop['default'];
+				}
+				$penthouse_props[$prop_name] = $prop_value;
+				break;
+			case 'boolean':
+				$prop_value = filter_input( INPUT_POST, 'prop_value', FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE );
+				if ( $prop_value == null ) {
+					$prop_value = $prop['default'];
+				}
+				if ( $prop_value == null ) {
+					unset( $penthouse_props[$prop_name] );
+				} else {
+					$penthouse_props[$prop_name] = $prop_value;
+				}
+				break;
+			case 'array':
+				$prop_value = filter_input( INPUT_POST, 'prop_value', FILTER_SANITIZE_STRING );
+				if ( ! $prop_value || $prop_value == '' ) {
+					unset( $penthouse_props[$prop_name] );
+				} else {
+					if ( ! isset( $penthouse_props[$prop_name] ) ) {
+						$penthouse_props[$prop_name] = [];
+					}
+					$penthouse_props[$prop_name][] = $prop_value;
+					$penthouse_props[$prop_name] = array_unique( $penthouse_props[$prop_name] );
+				}
+				break;
+		}
+		
+		tccss()->options()->set( 'penthouse_props', $penthouse_props );
+		tccss()->plugin()->clear_tccss_data();
+		
+		wp_send_json_success( json_encode( $penthouse_props, JSON_PRETTY_PRINT ) );
 		
 	}
 	

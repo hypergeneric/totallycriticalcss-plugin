@@ -2,8 +2,6 @@
 
 // pull the options
 $totallycriticalcss_api_key          = tccss()->options()->get( 'api_key' );
-$totallycriticalcss_viewport_width   = tccss()->options()->get( 'viewport_width', 1400 );
-$totallycriticalcss_viewport_height  = tccss()->options()->get( 'viewport_height', 1080 );
 $totallycriticalcss_simplemode       = tccss()->options()->get( 'simplemode' );
 $totallycriticalcss_show_metaboxes   = tccss()->options()->get( 'show_metaboxes' );
 $totallycriticalcss_adminmode        = tccss()->options()->get( 'adminmode' );
@@ -12,6 +10,8 @@ $totallycriticalcss_custom_dequeue   = tccss()->options()->get( 'custom_dequeue'
 $totallycriticalcss_custom_routes    = tccss()->options()->get( 'custom_routes', [] );
 $totallycriticalcss_ignore_routes    = tccss()->options()->get( 'ignore_routes', [] );
 $totallycriticalcss_selected_styles  = tccss()->options()->get( 'selected_styles', [] );
+$totallycriticalcss_penthouse_props  = tccss()->options()->get( 'penthouse_props', [] );
+$totallycriticalcss_penthouse_types  = tccss()->options()->get_penthouse_types();
 
 // get a list of custom post types
 $my_post_types = get_post_types();
@@ -28,11 +28,18 @@ $sheetlist     = ! $totallycriticalcss_simplemode ? tccss()->sheetlist()->get_cu
 			
 			<ul class="tabs">
 				<li data-tab="settings"><?php esc_html_e( 'Settings', 'tccss' ); ?></li>
-				<li data-tab="ignore-routes"><?php esc_html_e( 'Ignore Routes', 'tccss' ); ?></li>
+				<?php if ( ! $totallycriticalcss_simplemode ) { ?>
 				<li class="<?php echo esc_attr( $totallycriticalcss_simplemode == true ? 'disabled' : '' ); ?>" data-tab="stylesheets"><?php esc_html_e( 'Stylesheets', 'tccss' ); ?></li>
 				<li class="<?php echo esc_attr( $totallycriticalcss_simplemode == true ? 'disabled' : '' ); ?>" data-tab="cpt"><?php esc_html_e( 'Custom Post Types', 'tccss' ); ?></li>
+				<?php } ?>
+				<?php if ( ! $totallycriticalcss_simplemode ) { ?>
 				<li class="<?php echo esc_attr( $totallycriticalcss_simplemode == true ? 'disabled' : '' ); ?>" data-tab="routes"><?php esc_html_e( 'Routes', 'tccss' ); ?></li>
+				<?php } ?>
+				<li data-tab="ignore-routes"><?php esc_html_e( 'Ignore Routes', 'tccss' ); ?></li>
 				<li data-tab="status"><?php esc_html_e( 'Status', 'tccss' ); ?></li>
+				<?php if ( ! $totallycriticalcss_simplemode ) { ?>
+				<li class="<?php echo esc_attr( $totallycriticalcss_simplemode == true ? 'disabled' : '' ); ?>" data-tab="advanced"><?php esc_html_e( 'Penthouse', 'tccss' ); ?></li>
+				<?php } ?>
 			</ul>
 
 			<ul class="tab__content">
@@ -45,25 +52,13 @@ $sheetlist     = ! $totallycriticalcss_simplemode ? tccss()->sheetlist()->get_cu
 							<input id="api_key" name="api_key" type="text" placeholder="<?php esc_attr_e( 'Insert API Key', 'tccss' ); ?>" value="<?php echo esc_attr( $totallycriticalcss_api_key ); ?>">
 							<div class="desc">
 								<?php printf(
-									esc_html__( 'You\'ll need one of these for this to work.  Sign up at %1$s or if you already have an account, get the API key in your %2$s.', 'tccss' ),
+									esc_html__( 'You\'ll need one of these for this to work.  Sign up at %1$s for a free week trial or if you already have an account, get the API key in your %2$s.', 'tccss' ),
 									'<a href="https://totallycriticalcss.com/" target="_blank">https://totallycriticalcss.com/</a>',
 									sprintf(
 										'<a href="https://totallycriticalcss.com/my-account/" target="_blank">%1$s</a>',
 										esc_html__( 'account', 'tccss' ),
 									)
 								); ?>
-							</div>
-						</div>
-						
-						<div class="field">
-							<label for="viewport_width"><?php esc_html_e( 'Viewport Size', 'tccss' ); ?></label><br>
-							<div class="viewport">
-								<input id="viewport_width" name="viewport_width" type="number" placeholder="<?php esc_attr_e( 'In Pixels', 'tccss' ); ?>" value="<?php echo esc_attr( $totallycriticalcss_viewport_width ); ?>">
-								<span>X</span>
-								<input id="viewport_height" name="viewport_height" type="number" placeholder="<?php esc_attr_e( 'In Pixels', 'tccss' ); ?>" value="<?php echo esc_attr( $totallycriticalcss_viewport_height ); ?>">
-							</div>
-							<div class="desc">
-								<?php esc_html_e( 'You can probably leave these alone.  You can change them if your desktop site width is greater than 1400 or if you want to include items lower than 1080 pixels down below the fold.', 'tccss' ); ?>
 							</div>
 						</div>
 						
@@ -109,9 +104,9 @@ $sheetlist     = ! $totallycriticalcss_simplemode ? tccss()->sheetlist()->get_cu
 								/>
 							</div>
 							<div class="label">
-								<label for="adminmode"><?php esc_html_e( 'Admin Mode', 'tccss' ); ?></label>
+								<label for="adminmode"><?php esc_html_e( 'Test Mode', 'tccss' ); ?></label>
 							</div>
-							<div class="desc"><?php esc_html_e( 'This will have the effect of ignoring the Critical CSS insertion, but leaving comments in the HTML Source to give you debug information.', 'tccss' ); ?></div>
+							<div class="desc"><?php esc_html_e( 'This will have the effect of ignoring the Critical CSS insertion for non-logged-in users and leaving comments in the HTML Source to give you debug information.', 'tccss' ); ?></div>
 						</div>
 						
 						<input id="submitForm" class="button button-primary" name="submitForm" type="submit" value="<?php esc_attr_e( 'Save', 'tccss' ); ?>" />
@@ -401,6 +396,45 @@ $sheetlist     = ! $totallycriticalcss_simplemode ? tccss()->sheetlist()->get_cu
 							</div>
 							
 							<button class="button button-primary adder-form-show"><?php esc_html_e( 'Add Custom Route', 'tccss' ); ?></button>
+						
+						</div>
+						
+					</div>
+				</li>
+				
+				<li id="tab-advanced">
+					<div class="content__wrapper">
+						
+						<div id="custom_penthouse" class="ajax-group">
+							
+							<div class="screen" style="background-image: url( <?php echo esc_url( get_admin_url() . 'images/loading.gif' ); ?> );"></div>
+						
+							<h2><?php esc_html_e( 'Penthouse Options', 'tccss' ); ?></h2>
+							<p class="desc">
+								<?php printf(
+									esc_html__( 'Customize how Critical CSS is generated by gaining access to the underlying Penthouse options object.  Read about these options in the %1$s.', 'tccss' ),
+									sprintf(
+										'<a href="https://github.com/pocketjoso/penthouse#options" target="_blank">%1$s</a>',
+										esc_html__( 'repository', 'tccss' ),
+									)
+								); ?>
+							</p>
+							<p class="desc">
+								<?php esc_html_e( 'Add any valid value to add to the penthouse object.  Array values auto-append, and auto-dedupe.  Send a blank value to delete it from the object.  Blank number values return to penthouse defaults.', 'tccss' ); ?>
+							</p>
+							<pre id="penthouse-json"><?php echo esc_textarea( json_encode( $totallycriticalcss_penthouse_props, JSON_PRETTY_PRINT ) ); ?></pre>
+							
+							<div class="adder-form">
+								<div class="adder-group">
+									<select id="add-penthouse-name">
+										<?php foreach ( $totallycriticalcss_penthouse_types as $prop => $obj ) { ?>
+										<option data-type="<?php echo esc_attr( $obj['type'] ); ?>" data-default="<?php echo esc_attr( $obj['default'] ); ?>" value="<?php echo esc_attr( $prop ); ?>"><?php echo esc_html( $prop ); ?></option>
+										<?php } ?>
+									</select>
+									<input id="add-penthouse-value" type="text" />
+								</div>
+								<button id="add-form-penthouse" class="button button-primary"><?php esc_html_e( 'Add', 'tccss' ); ?></button>
+							</div>
 						
 						</div>
 						

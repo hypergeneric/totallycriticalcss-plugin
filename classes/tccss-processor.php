@@ -100,6 +100,7 @@ class TCCSS_Processor {
 		$simplemode    = tccss()->options()->get( 'simplemode' );
 		$custom_routes = tccss()->options()->get( 'custom_routes', [] );
 		$ignore_routes = tccss()->options()->get( 'ignore_routes', [] );
+		$selected_cpt  = $simplemode ? [ 'page', 'post', 'product' ] : tccss()->options()->get( 'selected_cpt', [] );
 		
 		// ignore?
 		foreach ( $ignore_routes as $ignore_route ) {
@@ -111,24 +112,26 @@ class TCCSS_Processor {
 		}
 		
 		// should we process this route?
-		if ( $type == 'route' ) {
-			$process_route = $simplemode;
-			if ( $process_route == false ) {
+		$process = $simplemode;
+		if ( $process == false ) { // simple mode off
+			if ( $type == 'route' ) {
 				foreach ( $custom_routes as $custom_route ) {
 					$process = $this->url_matches( $custom_route, $request_uri );
-					if ( $process == true && $process_route == false ) {
-						$process_route = true;
+					if ( $process == true ) {
+						break;
 					}
 				}
+			} else {
+				$process = in_array( get_post_type(), $selected_cpt );
 			}
-			if ( $process_route == false ) {
-				tccss()->log( 'Invalidation stopped.  Route ' . $route_actual . ' not processed.' );
-				return;
-			}
+		}
+		if ( $process == false ) {
+			tccss()->log( 'Invalidation stopped.  Route ' . $route_actual . ' not processed.' );
+			return;
 		}
 		
 		// set the flag to show we are loading
-		$invalidate_hash = md5( time() . $route_or_id );
+		$invalidate_hash = md5( uniqid( '', true ) . $route_or_id );
 		tccss()->log( 'Invalidation loading ' .$invalidate_hash . '...' );
 		tccss()->options()->setmeta( $type, $route_or_id, 'invalidate', 'loading' );
 		tccss()->options()->setmeta( $type, $route_or_id, 'invalidate_hash', $invalidate_hash );
@@ -192,8 +195,12 @@ class TCCSS_Processor {
 	public function get_critical_css( $page_url ) {
 		
 		// get all the styles and concatenate
-		$stylesheets = tccss()->sheetlist()->get_selected();
-		$css = [];
+		$simplemode      = tccss()->options()->get( 'simplemode' );
+		$penthouse_props = tccss()->options()->get( 'penthouse_props' );
+		$api_key         = tccss()->options()->get( 'api_key' );
+		$stylesheets     = tccss()->sheetlist()->get_selected();
+		
+		$css             = [];
 		foreach ( $stylesheets as $handle => $url ) {
 			$css[] = apply_filters( 'tccss_parse_internal_uri', $url );
 		}
@@ -210,10 +217,8 @@ class TCCSS_Processor {
 		$query = [
 			'u' => $page_url,
 			'c' => $css,
-			'w' => tccss()->options()->get( 'viewport_width' ),
-			'h' => tccss()->options()->get( 'viewport_height' ),
-			'k' => tccss()->options()->get( 'api_key' ),
-			'd' => tccss()->options()->get( 'simplemode' ) == true ? '1' : '0',
+			'p' => ( $simplemode ? '' : json_encode( $penthouse_props ) ),
+			'k' => $api_key,
 			't' => md5( uniqid( '', true ) ),
 		];
 		
@@ -236,7 +241,6 @@ class TCCSS_Processor {
 	function get_request_uri() {
 		$options     = array( 'options' => array( 'default' => '' ) );
 		$request_uri = filter_input( INPUT_SERVER, 'REQUEST_URI', FILTER_SANITIZE_URL, $options );
-		// Because there isn't an usable value, try the fallback.
 		if ( empty( $request_uri ) && isset( $_SERVER['REQUEST_URI'] ) ) {
 			$request_uri = filter_var( $_SERVER['REQUEST_URI'], FILTER_SANITIZE_URL, $options );
 		}
@@ -252,22 +256,35 @@ class TCCSS_Processor {
 	 *
 	 * @return boolean
 	 */
-	function url_matches( $search, $url ) {
-		if ( $url === '/' ) {
-			if ( $search === $url ) {
+	function url_matches( $pattern, $search ) {
+		// just check for strict equality first
+		$result = $pattern === $search;
+		tccss()->log( 'Strict equality "' . $pattern . '" and "' . $search . '" ... ' . ( $result !== false ? 'Matched!' : 'Skipped.' ) );
+		if ( $result !== false ) {
+			return true;
+		}
+		// if either is the root, go no further
+		if ( $pattern == '/' || $search == '/' ) {
+			return false;
+		}
+		// lets try regex or string-in-string
+		if ( stripos( $pattern, '*' ) !== false || stripos( $pattern, '^' ) !== false ) {
+			// regex string detected
+			$pattern = str_replace( '`', '\\`', $pattern );
+			$pattern = "`{$pattern}`";
+			$result = @preg_match( $pattern, $search, $url_matches );
+			tccss()->log( 'Regex string pattern "' . $pattern . '" and subject "' . $search . '" ... ' . ( 1 === $result ? 'Matched!' : 'Skipped.' ) );
+			if ( 1 === $result ) {
+				//print_r( $url_matches );
 				return true;
 			}
 		} else {
-			if ( stripos( $search, $url ) !== false) {
+			// otherwise, do a simple string in string search compare -- is one in the other?
+			$result = stripos( $pattern, $search );
+			tccss()->log( 'Non-regex string pattern "' . $pattern . '" and subject "' . $search . '" ... ' . ( $result !== false ? 'Matched!' : 'Skipped.' ) );
+			if ( $result !== false ) {
 				return true;
 			}
-		}
-		$search = str_replace( '`', '\\`', $search );
-		// Suppress warning: a faulty redirect will give a warning and not an exception. So we can't catch it.
-		// See issue: https://github.com/Yoast/wordpress-seo-premium/issues/662.
-		if ( 1 === @preg_match( "`{$search}`", $url, $url_matches ) ) {
-			//print_r( $url_matches );
-			return true;
 		}
 		return false;
 	}
@@ -281,7 +298,7 @@ class TCCSS_Processor {
 	 * @return  mixed The route or ID.
 	 */
 	public function get_route_or_id() {
-		if ( is_archive() ) {
+		if ( $this->get_route_type() == 'route' ) {
 			return $this->get_request_uri();
 		} else {
 			return get_the_ID();
@@ -297,10 +314,10 @@ class TCCSS_Processor {
 	 * @return  string The route type.
 	 */
 	public function get_route_type() {
-		if ( is_archive() ) {
-			return 'route';
-		} else {
+		if ( is_singular() || is_page() || is_single() ) {
 			return 'single';
+		} else {
+			return 'route';
 		}
 	}
 	

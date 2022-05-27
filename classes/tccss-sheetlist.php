@@ -68,7 +68,7 @@ class TCCSS_Sheetlist {
 			// we are going to do this no more than once a day
 			$css = get_transient( 'totallycriticalcss-sheetlist' );
 			if ( ! $css ) {
-				$css = tccss()->sheetlist()->get_current();
+				$css = $this->get_current();
 				set_transient( 'totallycriticalcss-sheetlist', $css, 86400 );
 				$this->set_checksum();
 			}

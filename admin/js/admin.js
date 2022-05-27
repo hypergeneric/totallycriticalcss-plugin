@@ -191,6 +191,32 @@
 			return false;
 		} );
 		
+		// ignore routes functions / actions
+		
+		function createPenthouseObject ( data ) {
+			$( '#penthouse-json' ).html( data );
+		}
+		
+		tccssadmin.find( '#add-form-penthouse' ).click( function( e ) {
+			$( '#custom_penthouse' ).addClass( 'loading' );
+			$.ajax( {
+				method: 'POST',
+				url: ajaxURL,
+				data:{
+					action: 'totallycriticalcss_add_penthouse_prop',
+					prop_name: $( '#add-penthouse-name' ).val(),
+					prop_value: $( '#add-penthouse-value' ).val(),
+				},
+				success: function( response ) {
+					$( '#custom_penthouse' ).removeClass( 'loading' );
+					tccssadmin.find( '.adder-form input' ).val( '' );
+					createPenthouseObject( response.data );
+				}
+			} );
+			e.preventDefault();
+			return false;
+		} );
+		
 		// status page
 		
 		function createStatusTable ( data ) {
@@ -269,8 +295,6 @@
 			e.preventDefault();
 
 			var api_key          = $( this ).find( '#api_key' ).val();
-			var viewport_width   = $( this ).find( '#viewport_width' ).val();
-			var viewport_height  = $( this ).find( '#viewport_height' ).val();
 			var simplemode       = $( this ).find( '#simplemode' ).is( ':checked' );
 			var show_metaboxes   = $( this ).find( '#show_metaboxes' ).is( ':checked' );
 			var adminmode        = $( this ).find( '#adminmode' ).is( ':checked' );
@@ -293,8 +317,6 @@
 				data:{
 					action: 'totallycriticalcss_save_admin_page',
 					api_key: api_key,
-					viewport_width: viewport_width,
-					viewport_height: viewport_height,
 					simplemode: simplemode,
 					show_metaboxes: show_metaboxes,
 					adminmode: adminmode,

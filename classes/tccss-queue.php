@@ -47,11 +47,11 @@ class TCCSS_Queue {
 		
 		// dequeue stuff
 		$adminmode   = tccss()->options()->get( 'adminmode' );
-		$is_admin    = current_user_can( 'administrator' );
+		$logged_in   = is_user_logged_in();
 		$styles      = tccss()->sheetlist()->get_selected();
 		$criticalcss = tccss()->processor()->get_data();
 		foreach ( $styles as $handle => $url ) {
-			if ( $adminmode == true && $is_admin ) {
+			if ( $adminmode == true && ! $logged_in ) {
 				?><!-- TCSSS: dequeue: ( <?php echo esc_html( $handle ); ?> ): <?php echo esc_url( $url ); ?> -->
 <?php
 			} else {
@@ -60,7 +60,7 @@ class TCCSS_Queue {
 		}
 		
 		// dump critical into head
-		if ( $adminmode == true && $is_admin ) {
+		if ( $adminmode == true && ! $logged_in ) {
 			// do nothing
 		} else {
 			wp_register_style( 'tccss-head', false );
@@ -73,10 +73,10 @@ class TCCSS_Queue {
 			
 			// enqueue stuff
 			$adminmode = tccss()->options()->get( 'adminmode' );
-			$is_admin  = current_user_can( 'administrator' );
+			$logged_in   = is_user_logged_in();
 			$styles    = tccss()->sheetlist()->get_selected();
 			foreach ( $styles as $handle => $url ) {
-				if ( $adminmode == true && $is_admin ) {
+				if ( $adminmode == true && ! $logged_in ) {
 					?><!-- TCSSS: enqueue: ( <?php echo esc_html( $handle ); ?> ): <?php echo esc_url( $url ); ?> -->
 <?php
 				} else {
