@@ -3,7 +3,7 @@
  * Plugin Name:  Totally Critical CSS
  * Plugin URI:   https://totallycriticalcss.com/
  * Description:  Totally fast and critical CSS.
- * Version:      1.0.3
+ * Version:      1.0.4
  * Author:       Compiled Rogue
  * Author URI:   https://compiledrogue.com
  * License:      GPL2 or later
@@ -32,7 +32,7 @@ if ( ! class_exists( 'TotallyCriticalCSS' ) ) :
 	class TotallyCriticalCSS {
 		
 		/** @var string The plugin version number. */
-		var $version = '1.0.3';
+		var $version = '1.0.4';
 		
 		/** @var string Shortcuts. */
 		var $plugin;
@@ -140,13 +140,22 @@ if ( ! class_exists( 'TotallyCriticalCSS' ) ) :
 		 * @param   mixed  $log The value.
 		 * @return  void
 		 */
-		function log( $log ) {
+		function log( $log, $type = null, $route_or_id = null ) {
 			if ( defined( 'TCCSS_DEBUG' ) && TCCSS_DEBUG && WP_DEBUG ) {
 				if ( is_array( $log ) || is_object( $log ) ) {
 					error_log( print_r( $log, true ) );
 				} else {
 					error_log( $log );
 				}
+			}
+			if ( defined( 'TCCSS_STORE_DEBUG' ) && TCCSS_STORE_DEBUG && $type != null && $route_or_id != null ) {
+				$logdata = tccss()->options()->getmeta( $type, $route_or_id, 'logdata', '' );
+				if ( is_array( $log ) || is_object( $log ) ) {
+					$logdata .= print_r( $log, true ) . "\n";
+				} else {
+					$logdata .= $log . "\n";
+				}
+				$logdata = tccss()->options()->setmeta( $type, $route_or_id, 'logdata', $logdata );
 			}
 		}
 		

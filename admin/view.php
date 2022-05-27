@@ -428,7 +428,7 @@ $sheetlist     = ! $totallycriticalcss_simplemode ? tccss()->sheetlist()->get_cu
 								<div class="adder-group">
 									<select id="add-penthouse-name">
 										<?php foreach ( $totallycriticalcss_penthouse_types as $prop => $obj ) { ?>
-										<option data-type="<?php echo esc_attr( $obj['type'] ); ?>" data-default="<?php echo esc_attr( $obj['default'] ); ?>" value="<?php echo esc_attr( $prop ); ?>"><?php echo esc_html( $prop ); ?></option>
+										<option value="<?php echo esc_attr( $prop ); ?>"><?php echo esc_html( $prop ); ?></option>
 										<?php } ?>
 									</select>
 									<input id="add-penthouse-value" type="text" />

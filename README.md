@@ -3,7 +3,7 @@ Tags: css, critical css
 Requires at least: 4.9
 Tested up to: 6.0
 Requires PHP: 5.6
-Stable tag: 1.0.3
+Stable tag: 1.0.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,6 +14,9 @@ The Badass Little Critical CSS Generator
 Our plugin does one thing and it does it really well - generate critical CSS. It is easy to install, easy to use, and gets the job done. Period. 
 
 == Changelog ==
+
+= 1.0.4 =
+Added Penthouse options, cleaned up route or id detection.
 
 = 1.0.3 =
 Refactored for WP, inputs, escaping, etc.

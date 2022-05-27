@@ -9,16 +9,26 @@ class TCCSS_Queue {
 	 * @return  void
 	 */
 	public function __construct() {
+		
+		// if the preview flag is enabled, ignore the switcheroo
+		$preview = filter_input( INPUT_GET, 'totallycriticalcss', FILTER_SANITIZE_STRING );
+		if ( $preview == 'preview' ) {
+			return;
+		}
+		
 		if ( get_post_status() != 'publish' ) {
 			tccss()->log( 'Published, live pages only.' );
 			return;
 		}
+		
 		if ( ! tccss()->options()->get( 'api_key' ) ) {
 			tccss()->log( 'API key not supplied.' );
 			return;
 		}
+		
 		tccss()->log( 'Queue created: ' . tccss()->processor()->get_request_uri() );
 		add_action( 'wp_print_styles', array( $this, 'handle_critical' ), apply_filters( 'tccss_action_priority', TCCSS_ACTION_PRIORITY ) );
+		
 	}
 
 	/**

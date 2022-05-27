@@ -62,14 +62,14 @@ class TCCSS_Processor {
 		$retry_at     = tccss()->options()->getmeta( $type, $route_or_id, 'retry_at' );
 		$sheetlist    = tccss()->sheetlist()->get_checksum();
 		
-		tccss()->log( 'Validate url: ' . $route_label );
-		tccss()->log( 'Current invalidate flag: ' . ( $invalidate ? $invalidate : 'false' ) );
-		tccss()->log( 'Checksum: ' . ( $checksum ? $checksum : 'false' ) );
-		tccss()->log( 'Sheetlist: ' . ( $sheetlist ? $sheetlist : 'false' ) );
+		tccss()->log( 'Validate url: ' . $route_label, $type, $route_or_id );
+		tccss()->log( 'Current invalidate flag: ' . ( $invalidate ? $invalidate : 'false' ), $type, $route_or_id );
+		tccss()->log( 'Checksum: ' . ( $checksum ? $checksum : 'false' ), $type, $route_or_id );
+		tccss()->log( 'Sheetlist: ' . ( $sheetlist ? $sheetlist : 'false' ), $type, $route_or_id );
 		
 		// already running? skip it
 		if ( $invalidate == 'loading' ) {
-			tccss()->log( 'Invalidation stopped.  Already Loading.' );
+			tccss()->log( 'Invalidation stopped.  Already Loading.', $type, $route_or_id );
 			return;
 		}
 		
@@ -82,14 +82,14 @@ class TCCSS_Processor {
 		
 		// if we are about to run it, check to see if it's a retry
 		if ( $invalidate && $retry ) {
-			tccss()->log( 'Retry Attempt: ' . $retry );
+			tccss()->log( 'Retry Attempt: ' . $retry, $type, $route_or_id );
 			if ( time() < $retry_at ) {
-				tccss()->log( 'Retry At: ' . $retry_at . ", Current time: " . time() . ' ( ' . ( $retry_at - time() ) . 's )' );
+				tccss()->log( 'Retry At: ' . $retry_at . ", Current time: " . time() . ' ( ' . ( $retry_at - time() ) . 's )', $type, $route_or_id );
 				$invalidate = false;
 			}
 		}
 		
-		tccss()->log( 'Final invalidate flag: ' . ( $invalidate ? 'true' : 'false' ) );
+		tccss()->log( 'Final invalidate flag: ' . ( $invalidate ? 'true' : 'false' ), $type, $route_or_id );
 		
 		// if not invalidated, stop right here.
 		if ( ! $invalidate ) {
@@ -106,7 +106,7 @@ class TCCSS_Processor {
 		foreach ( $ignore_routes as $ignore_route ) {
 			$ignore = $this->url_matches( $ignore_route, $request_uri );
 			if ( $ignore ) {
-				tccss()->log( 'Invalidation stopped.  Route ' . $request_uri . ' Ignored.' );
+				tccss()->log( 'Invalidation stopped.  Route ' . $request_uri . ' Ignored.', $type, $route_or_id );
 				return;
 			}
 		}
@@ -126,18 +126,19 @@ class TCCSS_Processor {
 			}
 		}
 		if ( $process == false ) {
-			tccss()->log( 'Invalidation stopped.  Route ' . $route_actual . ' not processed.' );
+			tccss()->log( 'Invalidation stopped.  Route ' . $route_actual . ' not processed.', $type, $route_or_id );
 			return;
 		}
 		
 		// set the flag to show we are loading
 		$invalidate_hash = md5( uniqid( '', true ) . $route_or_id );
-		tccss()->log( 'Invalidation loading ' .$invalidate_hash . '...' );
+		tccss()->log( 'Invalidation loading ' . $invalidate_hash . '...', $type, $route_or_id );
 		tccss()->options()->setmeta( $type, $route_or_id, 'invalidate', 'loading' );
 		tccss()->options()->setmeta( $type, $route_or_id, 'invalidate_hash', $invalidate_hash );
 		
 		// pull the critical css
-		wp_schedule_single_event( time() + 30, 'process_critical_css', [ $type, $route_or_id, $invalidate_hash ] );
+		$scheduled = wp_schedule_single_event( time() + 30, 'process_critical_css', [ $type, $route_or_id, $invalidate_hash ] );
+		tccss()->log( 'CRON scheduling ' . ( $scheduled ? ' succeeded!' : 'failed!' ), $type, $route_or_id );
 		
 	}
 	
@@ -157,25 +158,25 @@ class TCCSS_Processor {
 		$route_label  = $type == 'route' ? $route_label : $route_or_id . ', ' . $route_label;
 		
 		if ( $invalidate_hash != tccss()->options()->getmeta( $type, $route_or_id, 'invalidate_hash' ) ) {
-			tccss()->log( 'Invalidation hash ' . $invalidate_hash . ' does not exist.  Ignoring CRON call' );
+			tccss()->log( 'Invalidation hash ' . $invalidate_hash . ' does not exist.  Ignoring CRON call', $type, $route_or_id );
 			return;
 		}
 		
 		// do the actual call
-		$response_data = $this->get_critical_css( $route_actual );
+		$response_data = $this->get_critical_css( $route_actual, $type, $route_or_id );
 		$json_data     = json_decode( $response_data );
 		tccss()->options()->setmeta( $type, $route_or_id, 'criticalcss', $json_data );
 		
 		// save the global checksum at this point in time to check in the future
 		if ( $json_data->success === true ) {
 			tccss()->options()->setmeta( $type, $route_or_id, 'checksum', tccss()->sheetlist()->get_checksum() );
-			tccss()->log( 'Critical CSS for ' . $route_label . ' loaded successfully!' );
+			tccss()->log( 'Critical CSS for ' . $route_label . ' loaded successfully!', $type, $route_or_id );
 		} else {
 			$retry = tccss()->options()->getmeta( $type, $route_or_id, 'retry', 0 );
 			$retry += 1;
 			tccss()->options()->setmeta( $type, $route_or_id, 'retry', $retry );
 			tccss()->options()->setmeta( $type, $route_or_id, 'retry_at', time() + ( $retry * 90 ) );
-			tccss()->log( 'Critical CSS for ' . $route_label . ' failed! Retry: ' . $retry );
+			tccss()->log( 'Critical CSS for ' . $route_label . ' failed! Retry: ' . $retry, $type, $route_or_id );
 		}
 		
 		// clear out any invalidation flags
@@ -192,7 +193,7 @@ class TCCSS_Processor {
 	 * @param   string $page_url The page url to generate critical css for.
 	 * @return  string The json string body from the response.
 	 */
-	public function get_critical_css( $page_url ) {
+	public function get_critical_css( $page_url, $type, $route_or_id ) {
 		
 		// get all the styles and concatenate
 		$simplemode      = tccss()->options()->get( 'simplemode' );
@@ -222,8 +223,8 @@ class TCCSS_Processor {
 			't' => md5( uniqid( '', true ) ),
 		];
 		
-		tccss()->log( 'get_critical_css: ' . $uri );
-		tccss()->log( $query );
+		tccss()->log( 'get_critical_css: ' . $uri, $type, $route_or_id );
+		tccss()->log( $query, $route_or_id );
 
 		// pull the critical and return it
 		$response      = wp_remote_get( $uri . '?' . http_build_query( $query ), [ 'timeout' => 30 ] );
