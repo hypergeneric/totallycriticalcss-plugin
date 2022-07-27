@@ -17,7 +17,7 @@ class TCCSS_Plugin {
 		update_option( 'totallycriticalcss_adminmode', false );
 		update_option( 'totallycriticalcss_ignore_routes', [ '^my-account/*' ] );
 		update_option( 'totallycriticalcss_selected_cpt', [ 'page', 'post', 'product' ] );
-
+		
 	}
 
 	/**
@@ -36,6 +36,8 @@ class TCCSS_Plugin {
 		$wpdb->query( "DELETE FROM {$wpdb->options} WHERE `option_name` LIKE 'totallycriticalcss_%'" );
 		
 		tccss()->plugin()->clear_tccss_data();
+		
+		wp_clear_scheduled_hook( 'tccss_maintenance' );
 
 	}
 	
@@ -51,12 +53,73 @@ class TCCSS_Plugin {
 		register_deactivation_hook( TCCSS_FILE, array( __CLASS__, 'uninstall' ) );
 		register_activation_hook( TCCSS_FILE, array( __CLASS__, 'install' ) );
 		
+		if ( ! wp_next_scheduled( 'tccss_maintenance' ) ) {
+			wp_schedule_event( time(), 'hourly', 'tccss_maintenance' );
+		}
+		add_action( 'tccss_maintenance', array( $this, 'tccss_maintenance' ) );
+		
 		if ( is_admin() ) {
 			add_filter( 'plugin_action_links_' . TCCSS_BASENAME . '/totallycriticalcss.php', array( $this, 'add_settings_link' ) );
 			add_action( 'admin_init', array( $this, 'admin_init' ) );
 			add_action( 'admin_menu', array( $this, 'admin_page' ) );
 		}
 		
+	}
+	
+	/**
+	 * tccss_maintenance
+	 *
+	 * Do maintenance.
+	 *
+	 * @param   void
+	 * @return  void
+	 */
+	public function tccss_maintenance() {
+		
+		global $wpdb;
+
+		// pull the routes from the options table
+		$records = $wpdb->get_results( "SELECT * FROM {$wpdb->options} WHERE `option_name` LIKE 'totallycriticalcss_route_%'" );
+		foreach ( $records as $record ) {
+			$route            = explode( "_", $record->option_name );
+			$route            = array_slice( $route, 2 );
+			$route            = implode( "/", $route );
+			$data             = unserialize( $record->option_value );
+			$invalidate       = isset( $data['invalidate'] ) ? $data['invalidate'] : false;
+			$retry            = isset( $data['retry'] ) ? $data['retry'] : false;
+			$invalidate_start = isset( $data['invalidate_start'] ) ? $data['invalidate_start'] : false;
+			if ( $invalidate == 'loading' && ! $retry && $invalidate_start + 120 < time() ) {
+				$this->invalidate_route_data( 'route', $route );
+				tccss()->log( $route );
+			}
+		}
+		
+		// pull the routes from the posts table
+		$the_query = new WP_Query( [
+			'post_type'         => 'any',
+			'posts_per_page'    => -1,
+			'post_status'       => 'publish',
+			'meta_query'        => [
+				'relation'     => 'AND',
+				[
+					'key'     => 'totallycriticalcss_invalidate',
+					'compare' => 'EXISTS'
+				],
+			]
+		] );
+		if ( $the_query->have_posts() ) {
+			while ( $the_query->have_posts() ) { $the_query->the_post();
+				$invalidate       = tccss()->options()->getpostmeta( get_the_ID(), 'invalidate' );
+				$retry            = tccss()->options()->getpostmeta( get_the_ID(), 'retry' );
+				$invalidate_start = tccss()->options()->getpostmeta( get_the_ID(), 'invalidate_start' );
+				if ( $invalidate == 'loading' && ! $retry && $invalidate_start + 120 < time() ) {
+					$this->invalidate_route_data( 'single', get_the_ID() );
+					tccss()->log( get_the_ID() );
+				}
+			}
+		}
+		wp_reset_postdata();
+
 	}
 	
 	/**
@@ -76,6 +139,24 @@ class TCCSS_Plugin {
 		
 		// kill the route entries in options
 		$wpdb->query( "DELETE FROM {$wpdb->options} WHERE `option_name` LIKE 'totallycriticalcss_route_%'" );
+
+	}
+	
+	/**
+	 * invalidate_route_data
+	 *
+	 * Run installation functions.
+	 *
+	 * @param   array $route The route.
+	 * @return  void
+	 */
+	public function invalidate_route_data( $type, $route_or_id ) {
+
+		tccss()->options()->setmeta( $type, $route_or_id, 'checksum', false );
+		tccss()->options()->setmeta( $type, $route_or_id, 'criticalcss', false );
+		tccss()->options()->setmeta( $type, $route_or_id, 'invalidate', false );
+		tccss()->options()->setmeta( $type, $route_or_id, 'retry', false );
+		tccss()->options()->setmeta( $type, $route_or_id, 'retry_at', false );
 
 	}
 	

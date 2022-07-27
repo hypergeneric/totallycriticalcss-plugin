@@ -143,9 +143,7 @@ class TCCSS_AdminPanel {
 		$route_or_id = filter_input( INPUT_POST, 'route_or_id', FILTER_SANITIZE_URL );
 		$type        = filter_input( INPUT_POST, 'type', FILTER_SANITIZE_STRING );
 		
-		tccss()->options()->setmeta( $type, $route_or_id, 'checksum', false );
-		tccss()->options()->setmeta( $type, $route_or_id, 'criticalcss', false );
-		tccss()->options()->setmeta( $type, $route_or_id, 'invalidate', false );
+		tccss()->plugin()->invalidate_route_data( $type, $route_or_id );
 		
 		$this->get_status();
 		

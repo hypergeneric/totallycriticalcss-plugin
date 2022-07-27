@@ -135,10 +135,11 @@ class TCCSS_Processor {
 		tccss()->log( 'Invalidation loading ' . $invalidate_hash . '...', $type, $route_or_id );
 		tccss()->options()->setmeta( $type, $route_or_id, 'invalidate', 'loading' );
 		tccss()->options()->setmeta( $type, $route_or_id, 'invalidate_hash', $invalidate_hash );
+		tccss()->options()->setmeta( $type, $route_or_id, 'invalidate_start', time() );
 		
 		// pull the critical css
-		$scheduled = wp_schedule_single_event( time() + 30, 'process_critical_css', [ $type, $route_or_id, $invalidate_hash ] );
-		tccss()->log( 'CRON scheduling ' . ( $scheduled ? ' succeeded!' : 'failed!' ), $type, $route_or_id );
+		$scheduled = wp_schedule_single_event( time() + rand( 30, 90 ), 'process_critical_css', [ $type, $route_or_id, $invalidate_hash ] );
+		tccss()->log( 'CRON scheduling ' . ( $scheduled ? 'succeeded!' : 'failed!' ), $type, $route_or_id );
 		
 	}
 	
@@ -163,6 +164,7 @@ class TCCSS_Processor {
 		}
 		
 		// do the actual call
+		tccss()->log( 'Critical CSS loading: ' . $route_label, $type, $route_or_id );
 		$response_data = $this->get_critical_css( $route_actual, $type, $route_or_id );
 		$json_data     = json_decode( $response_data );
 		tccss()->options()->setmeta( $type, $route_or_id, 'criticalcss', $json_data );
@@ -171,17 +173,20 @@ class TCCSS_Processor {
 		if ( $json_data->success === true ) {
 			tccss()->options()->setmeta( $type, $route_or_id, 'checksum', tccss()->sheetlist()->get_checksum() );
 			tccss()->log( 'Critical CSS for ' . $route_label . ' loaded successfully!', $type, $route_or_id );
+			tccss()->options()->setmeta( $type, $route_or_id, 'retry', false );
+			tccss()->options()->setmeta( $type, $route_or_id, 'retry_at', false );
 		} else {
 			$retry = tccss()->options()->getmeta( $type, $route_or_id, 'retry', 0 );
 			$retry += 1;
 			tccss()->options()->setmeta( $type, $route_or_id, 'retry', $retry );
-			tccss()->options()->setmeta( $type, $route_or_id, 'retry_at', time() + ( $retry * 90 ) );
+			tccss()->options()->setmeta( $type, $route_or_id, 'retry_at', time() + ( $retry * 120 ) );
 			tccss()->log( 'Critical CSS for ' . $route_label . ' failed! Retry: ' . $retry, $type, $route_or_id );
 		}
 		
 		// clear out any invalidation flags
 		tccss()->options()->setmeta( $type, $route_or_id, 'invalidate', false );
 		tccss()->options()->setmeta( $type, $route_or_id, 'invalidate_hash', false );
+		tccss()->options()->setmeta( $type, $route_or_id, 'invalidate_start', false );
 		
 	}
 	
